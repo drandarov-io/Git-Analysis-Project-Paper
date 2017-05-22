@@ -1,0 +1,38 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+\title{%
+Wissensmanagement \\
+\large Projektarbeit \\
+\large Analyse eines GitHub-Repositorys mit Neo4j}
+\author{%
+Lisa Rosenberg | 70415245 \\
+\large Dmitrij Drandarov | 70428153}
+\maketitle
+
+\section*{1 Diagramme und Analysen}
+\subsection*{1.1 Change-Count}
+<<echo=FALSE, fig=TRUE>>=
+csv <- read.table(file.path("Change-Count.csv"), sep=",", header=TRUE)
+slices <- c(csv$ChangeCount)
+labels <- csv$ModificationKind
+percentage <- round(slices/sum(slices)*100)
+labels <- paste(labels, " (", slices, " | ", percentage, "%)", sep="")
+pie(slices, labels=labels, main="Change Count")
+@
+\subsection*{1.2 Change-Count-by-Author}
+<<echo=TRUE, fig=TRUE>>=
+csv <- read.table(file.path("Change-Count-by-Author.csv"), sep=",", header=TRUE)
+csv
+as.numeric(csv$ModificationKind)
+table(as.numeric(csv$ModificationKind) * csv$ChangeCount, csv$Author)
+barplot(table(csv$Author, as.numeric(csv$ModificationKind) * csv$ChangeCount))
+# Hier die Query etwas ändern, dass keine Summe dasteht sondern jeder Wert pro ModificationKind einzeln
+@
+\subsection*{1.3 Change-Count-by-Author}
+
+
+
+\end{document}
