@@ -10,3 +10,4 @@ target/
 /analysis/*/*.gz(busy)
 /analysis/*/*.csv
 /analysis/*/*.gz
+!/analysis/*/*_Analysis.pdf

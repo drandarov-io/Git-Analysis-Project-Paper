@@ -12,27 +12,59 @@ Lisa Rosenberg | 70415245 \\
 \large Dmitrij Drandarov | 70428153}
 \maketitle
 
+<<echo=FALSE>>=
+library(zoo)
+@
+
 \section*{1 Diagramme und Analysen}
 \subsection*{1.1 Change-Count}
 <<echo=FALSE, fig=TRUE>>=
-csv <- read.table(file.path("Change-Count.csv"), sep=",", header=TRUE)
+csv <- read.table(file.path("../../result/dukecon/wip/Change-Count.csv"), sep=",", header=TRUE)
 slices <- c(csv$ChangeCount)
 labels <- csv$ModificationKind
 percentage <- round(slices/sum(slices)*100)
 labels <- paste(labels, " (", slices, " | ", percentage, "%)", sep="")
 pie(slices, labels=labels, main="Change Count")
 @
+
 \subsection*{1.2 Change-Count-by-Author}
 <<echo=TRUE, fig=TRUE>>=
-csv <- read.table(file.path("Change-Count-by-Author.csv"), sep=",", header=TRUE)
-csv
-as.numeric(csv$ModificationKind)
-table(as.numeric(csv$ModificationKind) * csv$ChangeCount, csv$Author)
-barplot(table(csv$Author, as.numeric(csv$ModificationKind) * csv$ChangeCount))
-# Hier die Query etwas ändern, dass keine Summe dasteht sondern jeder Wert pro ModificationKind einzeln
+csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Author-2.csv"), sep=",", header=TRUE)
+a <- as.data.frame(table(csv$Author))
+a$Var1
+b <- which(table(csv$Author) > 50, arr.ind = TRUE, useNames = TRUE)
+b
+c <- table(csv$Author) > 50
+c
+d <- csv[table(csv$Author) > 50, ]
+plot(table(csv$Author, csv$ModificationKind))
 @
-\subsection*{1.3 Change-Count-by-Author}
 
+\subsection*{1.3 Change-Count-by-Date}
+<<echo=TRUE, fig=TRUE>>=
+csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Date-2.csv"), sep=",", header=TRUE)
+# Create Line Chart
+
+# convert factor to numeric for convenience 
+csv$ModificationKind <- as.numeric(csv$ModificationKind) 
+ntrees <- max(csv$ModificationKind)
+
+# get the range for the x and y axis 
+xrange <- range(as.yearmon(csv$CommitDate))
+yrange <- range(csv$ChangeCount)
+
+# set up the plot 
+plot(xrange, yrange, type="b", xlab="CommitDate", ylab="ChangeCount" ) 
+colors <- rainbow(ntrees)
+linetype <- c(1:ntrees) 
+plotchar <- seq(18,18+ntrees,1)
+
+# add lines 
+for (i in 1:ntrees) { 
+  x <- subset(csv, ModificationKind==i)
+  lines(as.yearmon(x$CommitDate), x$ChangeCount, type="b", lwd=1.5, lty=linetype[i], col=colors[i], pch=plotchar[i])
+}
+@
 
 
 \end{document}
