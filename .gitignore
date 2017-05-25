@@ -10,4 +10,5 @@ target/
 /analysis/*/*.gz(busy)
 /analysis/*/*.csv
 /analysis/*/*.gz
+/analysis/*/*.RData
 !/analysis/*/*_Analysis.pdf
