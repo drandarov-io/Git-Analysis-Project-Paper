@@ -140,7 +140,7 @@ csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-File-Type.
 colorCount <- max(as.numeric(csv$FileType))
 ymax <- round_any(max(csv$ChangeCount)*120/100, 10, f=ceiling)
 
-# Plo
+# Plot
 ggplot(csv, aes(x=reorder(FileType, ChangeCount), y=ChangeCount)) +
   geom_bar(stat="identity", fill=getPalette(colorCount)) + coord_flip() +
   geom_text(aes(label=ChangeCount), vjust=0.5, hjust=-0.5, size=3) +
@@ -159,9 +159,11 @@ csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-File-Type-
 subset1 <- subset(csv, Author=="Falk Sippach")
 subset2 <- subset(csv, Author=="Alexander Schwartz")
 
-# Setup
+# Color
 colorCount1 <- max(as.numeric(droplevels.factor(subset1[2>0]$FileType)))
 colorCount2 <- max(as.numeric(droplevels.factor(subset2[2>0]$FileType)))
+
+# Max value for plot limits
 ymax1 <- round_any(max(table(subset1$FileType))*120/100, 10, f=ceiling)
 ymax2 <- round_any(max(table(subset2$FileType))*120/100, 10, f=ceiling)
 
@@ -196,25 +198,59 @@ subset2 <- subset(csv, Author=="Alexander Schwartz")
 proportion1 <- round(table(subset1$FileType)/table(csv$FileType)*100, digits=2)
 proportion2 <- round(table(subset2$FileType)/table(csv$FileType)*100, digits=2)
 
-# Setup
+# Color
 colorCount <- max(as.numeric(csv$FileType))
 
-# Plot
 plot1 <- ggplot(data.frame(proportion1), aes(x=Var1, y=Freq)) +
   geom_bar(stat="identity", fill=getPalette(colorCount)) +
-  geom_text(aes(label=Freq), hjust=-0.25, size=2, angle=90) +
+  geom_text(aes(label=paste(Freq, "%")), hjust=-0.25, size=2, angle=90) +
   scale_y_continuous(limits=c(0,100), expand=c(0, 0)) +
   theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.30), axis.title=element_text(size=7.5,face="bold"), title=element_text(size=7.5,face="bold")) +
   labs(x="", y="ChangeCount in %", title="Ownership of Repository by Falk Sippach")
 
 plot2 <- ggplot(data.frame(proportion2), aes(x=Var1, y=Freq)) +
   geom_bar(stat="identity", fill=getPalette(colorCount)) +
-  geom_text(aes(label=Freq), hjust=-0.25, size=2, angle=90) +
+  geom_text(aes(label=paste(Freq, "%")), hjust=-0.25, size=2, angle=90) +
   scale_y_continuous(limits=c(0,100), expand=c(0, 0)) +
   theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.30), axis.title=element_text(size=7.5,face="bold"), title=element_text(size=7.5,face="bold")) +
   labs(x="", y="ChangeCount in %", title="Ownership of Repository by Alexander Schwartz")
 
 grid.arrange(plot1, plot2, nrow=2)
+@
+
+\subsection*{1.7 Ownership of Repository by Package}
+<<echo=FALSE, fig=TRUE>>=
+# Load data
+data <- read.table(file.path("../../result/dukecon/starred/Commit-Count-by-Author-by-Package.csv"), sep=",", header=TRUE)
+
+# Variablen
+pctRelevance <- 0.5
+
+# Only packages with more than 1% changes of the repository
+temp <- aggregate(ChangeCount ~ Path, data, sum) 
+temp$Pct <- temp$ChangeCount*100/sum(temp$ChangeCount)
+temp <- subset(temp, Pct > pctRelevance)
+data <- subset(data, Path %in% temp$Path)
+
+# Add percentage of changes within packages
+data$Pct <- round(data$ChangeCount/with(data, ave(ChangeCount, list(Path), FUN = sum))*100, digits=2)
+
+# Select authors that changed the most files in each package
+max <- with(data, tapply(ChangeCount, Path, which.max))
+split <- split(data, data$Path)
+data <- na.omit(do.call(rbind, lapply(1:length(split), function(i) split[[i]][max[i],])))
+
+# Color
+colorCount <- nrow(data)
+
+# Plot
+ggplot(data, aes(x=reorder(Path, Pct), y=Pct, fill=Author)) +
+  geom_bar(stat="identity") +
+  geom_text(aes(label=paste(Author, "-", Pct, "%")), hjust=-0.05, size=2) +
+  coord_flip() +
+  scale_y_continuous(limits=c(0,100), expand=c(0, 0)) +
+  theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.30, size=7.5), axis.title=element_text(size=7.5,face="bold"), title=element_text(size=7.5,face="bold")) +
+  labs(x="", y="ChangeCount", title="Ownership of Packages")
 @
 
 \end{document}
