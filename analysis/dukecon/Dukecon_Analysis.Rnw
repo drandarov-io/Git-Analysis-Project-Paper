@@ -1,8 +1,11 @@
-\documentclass{article}
+\documentclass[a4paper]{article}
 \usepackage[utf8]{inputenc}
+\usepackage[margin=3cm]{geometry}
 
 \begin{document}
 \SweaveOpts{concordance=TRUE}
+
+
 \title{%
 Wissensmanagement \\
 \large Projektarbeit \\
@@ -13,20 +16,30 @@ Lisa Rosenberg | 70415245 \\
 \maketitle
 
 <<echo=FALSE>>=
+# Install
+#install.packages("ggplot2")
+#install.packages("zoo")
+#install.packages("scales")
+#install.packages("gridExtra")
+#install.packages("plyr")
+#install.packages("vcd")
+
 # Load
 library(zoo)
 library(ggplot2)
 library(scales)
-library(grid)
 library(gridExtra)
 library(RColorBrewer)
+library(plyr)
+library(vcd)
 
 # Setup
 palette = "Dark2"
+getPalette = colorRampPalette(brewer.pal(7, palette))
 @
 
 \section*{1 Diagramme und Analysen}
-\subsection*{1.1 Change-Count}
+\subsection*{1.1 Change Count of Repository}
 <<echo=FALSE, fig=TRUE>>=
 # Load
 csv <- read.table(file.path("../../result/dukecon/Change-Count.csv"), sep=",", header=TRUE)
@@ -42,7 +55,7 @@ colors <- brewer.pal(max(as.numeric(csv$ModificationKind)), palette)
 pie(slices, labels=labels, col=colors, main="Change Count")
 @
 
-\subsection*{1.2 Change-Count-by-Author}
+\subsection*{1.2 Change Count by Author}
 <<echo=FALSE, fig=TRUE>>=
 # Load
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Author.csv"), sep=",", header=TRUE)
@@ -59,7 +72,7 @@ colors <- brewer.pal(max(as.numeric(csv$ModificationKind)), palette)
 mosaicplot(subset, col=colors, las=3, ylab="ModificationKind", main="Autoren mit mehr als 1% Änderungen", cex.axis=0.8, mar=c(0,0,0,0))
 @
 
-\subsection*{1.3 Change-Count-by-Date-Month}
+\subsection*{1.3 Change Count by Time}
 <<echo=FALSE, fig=TRUE>>=
 # Load
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Date-Month.csv"), sep=",", header=TRUE)
@@ -79,128 +92,129 @@ plotchar <- seq(18, 18 + max(numModificationKind), 1)
 # Plot
 for (i in 1:max(numModificationKind)) { 
   x <- subset(csv, numModificationKind==i)
-  lines(as.yearmon(x$CommitDate), x$ChangeCount, type="l", lwd=1.5, col=colors[i], pch=plotchar[i])
+  lines(as.yearmon(x$CommitDate), x$ChangeCount, type="l", lwd=2, col=colors[i], pch=plotchar[i])
 }
 
 # Legend
 legend(xrange[1], yrange[2], unique(csv$ModificationKind), cex=0.8, col=colors, lty=1, title="ModKind")
 @
 
-\subsection*{1.4 Change-Count-by-Author-by-Date}
+\subsection*{1.4 Change Count by Date and Author}
 <<echo=FALSE, fig=TRUE>>=
-# Datensätze laden
-csv1 <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Author-by-Date-Month.csv"), sep=",", header=TRUE)
-subset1 <- subset(csv1, Author == "Falk Sippach")
-#csv2 <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Author-by-Date-Month.csv"), sep=",", header=TRUE)
-#subset2 <- subset(csv2, Author == "Falk Sippach")
+# Load
+csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Author-by-Date-Month.csv"), sep=",", header=TRUE)
+
+# Filter
+subset1 <- subset(csv, Author == "Falk Sippach", select = -c(ModificationKind))
+subset1 <- aggregate(ChangeCount ~ CommitDate, subset1, sum)
+subset2 <- subset(csv, Author == "Falk Sippach")
 
 # Faktoren zu numerischen Werten umwandeln
-#numModificationKind <- as.numeric(subset2$ModificationKind) 
+numModificationKind <- as.numeric(subset2$ModificationKind) 
 
 # Range für x- und y-Achse festsetzen
-#dates <- as.numeric(subset1$CommitDate)
 xrange <- range(as.yearmon(subset1$CommitDate))
-yrange <- range(subset1$Change)
+yrange <- range(subset1$ChangeCount)
 
 # Setup
 plot(xrange, yrange, type="n", xlab="", ylab="ChangeCount", main="Change-Count-by-Author-by-Date-Month", cex.axis=0.8, mar=c(0,3.8,1.5,0), xaxt='n')
 axis(side=1, las=2, labels=c(as.yearmon(subset1$CommitDate)), at=c(as.yearmon(subset1$CommitDate)))
 abline(v=(c(as.yearmon(subset1$CommitDate))), col="grey", lty="dotted")
 colors <- brewer.pal(max(as.numeric(csv$ModificationKind)), palette)
-#plotchar <- seq(18, 18 + max(numModificationKind), 1)
+plotchar <- seq(18, 18 + max(numModificationKind), 1)
 
 # Plot
-lines(as.yearmon(subset1$CommitDate), subset1$ChangeCount, type="h", lwd=15, col=colors)
-#for (i in 1:dates) { 
-#  x <- subset(subset1, dates==i)
-#  summed <- sum(x$ChangeCount)
-#  lines(as.yearmon(x$CommitDate), x$ChangeCount, type="l", lwd=1.5, col=colors[i], pch=plotchar[i])
-#}
-#for (i in 1:max(numModificationKind)) { 
-#  x <- subset(subset2, numModificationKind==i)
-#  lines(as.yearmon(x$CommitDate), x$ChangeCount, type="l", lwd=1.5, col=colors[i], pch=plotchar[i])
-#}
+lines(as.yearmon(subset1$CommitDate), subset1$ChangeCount, type="h", lwd=10, col="gray27")
+for (i in 1:max(numModificationKind)) { 
+  x <- subset(subset2, numModificationKind==i)
+  lines(as.yearmon(x$CommitDate), x$ChangeCount, type="l", lwd=2, col=colors[i], pch=plotchar[i])
+}
 @
 
-\subsection*{1.4 Change-Count-by-File-Type}
+\subsection*{1.4 Change Count by File Type}
 <<echo=FALSE, fig=TRUE>>=
-# Datensätze laden
+# Load
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-File-Type.csv"), sep=",", header=TRUE)
 
 # Setup
+colorCount <- max(as.numeric(csv$FileType))
+ymax <- round_any(max(csv$ChangeCount)*120/100, 10, f=ceiling)
 
-# Plot zeichnen
+# Plo
 ggplot(csv, aes(x=reorder(FileType, ChangeCount), y=ChangeCount)) +
-  geom_bar(stat="identity") + coord_flip() +
-  geom_text(aes(label=ChangeCount), vjust=0.5, hjust=-0.1) +
+  geom_bar(stat="identity", fill=getPalette(colorCount)) + coord_flip() +
+  geom_text(aes(label=ChangeCount), vjust=0.5, hjust=-0.5, size=3) +
+  theme(axis.title=element_text(size=7.5,face="bold"), title=element_text(size=7.5,face="bold")) +
   scale_y_continuous(limits=c(0, 1050), expand=c(0, 0)) +
   labs(x="FileType")
 
 @
 
-\subsection*{1.5 Change-Count-by-File-Type-by-Author}
+\subsection*{1.5 Change Count by File Type and Author}
 <<echo=FALSE, fig=TRUE>>=
-# Datensätze laden
+# Load
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-File-Type-by-Author.csv"), sep=",", header=TRUE)
+
+# Filter
 subset1 <- subset(csv, Author=="Falk Sippach")
 subset2 <- subset(csv, Author=="Alexander Schwartz")
 
-# Plot-Setup
-par(mfrow=c(2,1))
+# Setup
+colorCount1 <- max(as.numeric(droplevels.factor(subset1[2>0]$FileType)))
+colorCount2 <- max(as.numeric(droplevels.factor(subset2[2>0]$FileType)))
+ymax1 <- round_any(max(table(subset1$FileType))*120/100, 10, f=ceiling)
+ymax2 <- round_any(max(table(subset2$FileType))*120/100, 10, f=ceiling)
 
-# Plots zeichnen
-barplot(table(subset1$FileType), las=3)
-barplot(table(subset2$FileType), las=3)
-@
-
-\subsection*{1.6 Change-Count-by-File-Type-by-Author}
-<<echo=FALSE, fig=TRUE>>=
-# Datensätze laden
-csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-File-Type-by-Author.csv"), sep=",", header=TRUE)
-subset1 <- subset(csv, Author=="Falk Sippach")
-subset2 <- subset(csv, Author=="Alexander Schwartz")
-
-# Plots zeichnen
+# Plot
 plot1 <- ggplot(subset1, aes(x=factor(FileType))) +
-  geom_bar(aes(y=(..count..)/sum(..count..))) +
-  scale_y_continuous(labels=scales::percent, limits=c(0,1), expand=c(0, 0)) +
-  theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.30)) +
-  labs(x="", y="ChangeCount")
+  geom_bar(fill=getPalette(colorCount1)) +
+  geom_text(stat='count', aes(label=..count..), hjust=-0.5, size=2, angle=90) +
+  scale_y_continuous(limits=c(0, ymax1), expand=c(0, 0)) +
+  theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.30), axis.title=element_text(size=7.5,face="bold"), title=element_text(size=7.5,face="bold")) +
+  labs(x="", y="ChangeCount", title="Change Count by Falk Sippach")
 
 plot2 <- ggplot(subset2, aes(x=factor(FileType))) +
-  geom_bar(aes(y=(..count..)/sum(..count..))) +
-  scale_y_continuous(labels=scales::percent, limits=c(0,1), expand=c(0, 0)) +
-  theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.30)) +
-  labs(x="FileType", y="ChangeCount")
+  geom_bar(fill=getPalette(colorCount2)) +
+  geom_text(stat='count', aes(label=..count..), hjust=-0.5, size=2, angle=90) +
+  scale_y_continuous(limits=c(0, ymax2), expand=c(0, 0)) +
+  theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.30), axis.title=element_text(size=7.5,face="bold"), title=element_text(size=7.5,face="bold")) +
+  labs(x="", y="ChangeCount", title="Change Count by Alexander Schwartz")
 
 grid.arrange(plot1, plot2, nrow=2)
 @
 
-\subsection*{1.6 Change-Count-by-File-Type-by-Author}
+\subsection*{1.6 Ownership of Repository by File Type}
 <<echo=FALSE, fig=TRUE>>=
-# Datensätze laden
+# Load
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-File-Type-by-Author.csv"), sep=",", header=TRUE)
+  
+# Filter
 subset1 <- subset(csv, Author=="Falk Sippach")
 subset2 <- subset(csv, Author=="Alexander Schwartz")
 
-nrow(subset(csv, FileType=="java"))
+# Transform
+proportion1 <- round(table(subset1$FileType)/table(csv$FileType)*100, digits=2)
+proportion2 <- round(table(subset2$FileType)/table(csv$FileType)*100, digits=2)
 
-# Plots zeichnen
-plot1 <- ggplot(subset1, aes(x=factor(FileType))) +
-  geom_bar(aes(y=(..count..)/sum(..count..))) +
-  scale_y_continuous(labels=scales::percent, limits=c(0,1), expand=c(0, 0)) +
-  theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.30)) +
-  labs(x="", y="ChangeCount", title="ChangeCount by Falk Sippach")
+# Setup
+colorCount <- max(as.numeric(csv$FileType))
 
-plot2 <- ggplot(subset2, aes(x=factor(FileType))) +
-  geom_bar(aes(y=(..count..)/sum(..count..))) +
-  scale_y_continuous(labels=scales::percent, limits=c(0,1), expand=c(0, 0)) +
-  theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.30)) +
-  labs(x="FileType", y="ChangeCount", title="ChangeCount by Alexander Schwartz")
+# Plot
+plot1 <- ggplot(data.frame(proportion1), aes(x=Var1, y=Freq)) +
+  geom_bar(stat="identity", fill=getPalette(colorCount)) +
+  geom_text(aes(label=Freq), hjust=-0.25, size=2, angle=90) +
+  scale_y_continuous(limits=c(0,100), expand=c(0, 0)) +
+  theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.30), axis.title=element_text(size=7.5,face="bold"), title=element_text(size=7.5,face="bold")) +
+  labs(x="", y="ChangeCount in %", title="Ownership of Repository by Falk Sippach")
+
+plot2 <- ggplot(data.frame(proportion2), aes(x=Var1, y=Freq)) +
+  geom_bar(stat="identity", fill=getPalette(colorCount)) +
+  geom_text(aes(label=Freq), hjust=-0.25, size=2, angle=90) +
+  scale_y_continuous(limits=c(0,100), expand=c(0, 0)) +
+  theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.30), axis.title=element_text(size=7.5,face="bold"), title=element_text(size=7.5,face="bold")) +
+  labs(x="", y="ChangeCount in %", title="Ownership of Repository by Alexander Schwartz")
 
 grid.arrange(plot1, plot2, nrow=2)
-
-# TODO 2 vektoen Abhängig von allen Changes ..... und File Types ... Prozentual gesehen
 @
 
 \end{document}
