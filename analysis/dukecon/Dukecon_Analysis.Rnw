@@ -1,10 +1,8 @@
 \documentclass[a4paper]{article}
 \usepackage[utf8]{inputenc}
-\usepackage[margin=3cm]{geometry}
+\usepackage[margin=2.5cm]{geometry}
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
-
 
 \title{%
 Wissensmanagement \\
@@ -15,7 +13,7 @@ Lisa Rosenberg | 70415245 \\
 \large Dmitrij Drandarov | 70428153}
 \maketitle
 
-<<echo=FALSE>>=
+<<echo=FALSE, message=FALSE>>=
 # Packages
 #install.packages("ggplot2")
 #install.packages("zoo")
@@ -23,6 +21,7 @@ Lisa Rosenberg | 70415245 \\
 #install.packages("gridExtra")
 #install.packages("plyr")
 #install.packages("vcd")
+#install.packages("knitr")
 library(zoo)
 library(ggplot2)
 library(scales)
@@ -30,17 +29,26 @@ library(gridExtra)
 library(RColorBrewer)
 library(plyr)
 library(vcd)
+library(knitr)
+
+# Conversion from Sweave to knitr
+Sweave2knitr("Dukecon_Analysis.Rnw")
 
 # Variables
 palette = "Dark2"
+wrapAtChar <- 25
+maxFiles <- 25 # number of most changed files
 
 # Functions
 getPalette = colorRampPalette(brewer.pal(7, palette))
 @
 
 \section*{1 Diagramme und Analysen}
-\subsection*{1.1 Change Count of Repository}
-<<echo=FALSE, fig=TRUE>>=
+\subsection*{1.1 Change Count by Modification Kind}
+
+\begin{figure}[ht]
+\centering
+<<echo=FALSE, fig=TRUE, fig.width=5, fig.height=5>>=
 # Load
 csv <- read.table(file.path("../../result/dukecon/Change-Count.csv"), sep=",", header=TRUE)
 
@@ -52,11 +60,16 @@ labels <- paste(labels, " (", slices, " | ", percentage, "%)", sep="")
 colors <- brewer.pal(max(as.numeric(csv$ModificationKind)), palette)
 
 # Plot
-pie(slices, labels=labels, col=colors, main="Change Count")
+pie(slices, labels=labels, col=colors, main="")
 @
+\caption{Ownership by File ordered by ChangeCount}
+\end{figure}
 
 \subsection*{1.2 Change Count by Author}
-<<echo=FALSE, fig=TRUE>>=
+
+\begin{figure}[ht]
+\centering
+<<echo=FALSE, fig=TRUE, fig.width=5, fig.height=5>>=
 # Load
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Author.csv"), sep=",", header=TRUE)
 
@@ -71,9 +84,15 @@ colors <- brewer.pal(max(as.numeric(csv$ModificationKind)), palette)
 # Plot
 mosaicplot(subset, col=colors, las=3, ylab="ModificationKind", main="Autoren mit mehr als 1% Änderungen", cex.axis=0.8, mar=c(0,0,0,0))
 @
+\caption{Ownership by File ordered by ChangeCount}
+\end{figure}
 
 \subsection*{1.3 Change Count by Time}
-<<echo=FALSE, fig=TRUE>>=
+\subsubsection*{1.3.1 Change Count by Month}
+
+\begin{figure}[ht]
+\centering
+<<echo=FALSE, fig=TRUE, fig.width=5, fig.height=5>>=
 # Load
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Date-Month.csv"), sep=",", header=TRUE)
 
@@ -98,9 +117,14 @@ for (i in 1:max(numModificationKind)) {
 # Legend
 legend(xrange[1], yrange[2], unique(csv$ModificationKind), cex=0.8, col=colors, lty=1, title="ModKind")
 @
+\caption{Ownership by File ordered by ChangeCount}
+\end{figure}
 
-\subsection*{1.4 Change Count by Date and Author}
-<<echo=FALSE, fig=TRUE>>=
+\subsubsection*{1.3.2 Change Count by Author and Month}
+
+\begin{figure}[ht]
+\centering
+<<echo=FALSE, fig=TRUE, fig.width=5, fig.height=5>>=
 # Load
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Author-by-Date-Month.csv"), sep=",", header=TRUE)
 
@@ -130,9 +154,15 @@ for (i in 1:max(numModificationKind)) {
   lines(as.yearmon(x$CommitDate), x$ChangeCount, type="l", lwd=2, col=colors[i], pch=plotchar[i])
 }
 @
+\caption{Ownership by File ordered by ChangeCount}
+\end{figure}
 
 \subsection*{1.4 Change Count by File Type}
-<<echo=FALSE, fig=TRUE>>=
+\subsubsection*{1.4.1 Change Count by File Type}
+
+\begin{figure}[ht]
+\centering
+<<echo=FALSE, fig=TRUE, fig.width=5, fig.height=5>>=
 # Load
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-File-Type.csv"), sep=",", header=TRUE)
 
@@ -149,9 +179,14 @@ ggplot(csv, aes(x=reorder(FileType, ChangeCount), y=ChangeCount)) +
   labs(x="FileType")
 
 @
+\caption{Ownership by File ordered by ChangeCount}
+\end{figure}
 
-\subsection*{1.5 Change Count by File Type and Author}
-<<echo=FALSE, fig=TRUE>>=
+\subsubsection*{1.4.2 Change Count by File Type and Author}
+
+\begin{figure}[ht]
+\centering
+<<echo=FALSE, fig=TRUE, fig.width=5, fig.height=5>>=
 # Load
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-File-Type-by-Author.csv"), sep=",", header=TRUE)
 
@@ -180,13 +215,19 @@ plot2 <- ggplot(subset2, aes(x=factor(FileType))) +
   geom_text(stat='count', aes(label=..count..), hjust=-0.5, size=2, angle=90) +
   scale_y_continuous(limits=c(0, ymax2), expand=c(0, 0)) +
   theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.30), axis.title=element_text(size=7.5,face="bold"), title=element_text(size=7.5,face="bold")) +
-  labs(x="", y="ChangeCount", title="Change Count by Alexander Schwartz")
+  labs(x="", y="ChangeCount")
 
 grid.arrange(plot1, plot2, nrow=2)
 @
+\caption{Change Count by Alexander Schwartz}
+\end{figure}
 
-\subsection*{1.6 Ownership of Repository by File Type}
-<<echo=FALSE, fig=TRUE>>=
+\subsection*{1.5 Ownership of Repository}
+\subsubsection*{1.5.1 Ownership of Repository by File Type}
+
+\begin{figure}[ht]
+\centering
+<<echo=FALSE, fig=TRUE, fig.width=5, fig.height=5>>=
 # Load
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-File-Type-by-Author.csv"), sep=",", header=TRUE)
   
@@ -213,45 +254,93 @@ plot2 <- ggplot(data.frame(proportion2), aes(x=Var1, y=Freq)) +
   geom_text(aes(label=paste(Freq, "%")), hjust=-0.25, size=2, angle=90) +
   scale_y_continuous(limits=c(0,100), expand=c(0, 0)) +
   theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.30), axis.title=element_text(size=7.5,face="bold"), title=element_text(size=7.5,face="bold")) +
-  labs(x="", y="ChangeCount in %", title="Ownership of Repository by Alexander Schwartz")
+  labs(x="", y="ChangeCount in %")
 
 grid.arrange(plot1, plot2, nrow=2)
 @
+\caption{Ownership of Repository by Alexander Schwartz}
+\end{figure}
 
-\subsection*{1.7 Ownership of Repository by Package}
-<<echo=FALSE, fig=TRUE>>=
+\subsubsection*{1.5.2 Ownership of Repository by Package}
+
+\begin{figure}[ht]
+\centering
+<<echo=FALSE, fig=TRUE, fig.width=10, fig.height=15>>=
 # Load data
-data <- read.table(file.path("../../result/dukecon/starred/Commit-Count-by-Author-by-Package.csv"), sep=",", header=TRUE)
-
-# Variablen
-pctRelevance <- 0.5
+data <- read.table(file.path("../../result/dukecon/starred/Change-Count-by-Author-by-Package.csv"), sep=",", header=TRUE)
 
 # Only packages with more than 1% changes of the repository
-temp <- aggregate(ChangeCount ~ Path, data, sum) 
-temp$Pct <- temp$ChangeCount*100/sum(temp$ChangeCount)
-temp <- subset(temp, Pct > pctRelevance)
+maxFiles <- 25 # number of most changed files
+temp <- aggregate(ChangeCount ~ Path, data, sum) # sum up ChangeCount of every Author
+temp <- temp[with(temp, order(-ChangeCount)),] # sort (descending)
+temp <- temp[temp$ChangeCount >= temp$ChangeCount[order(temp$ChangeCount, decreasing=TRUE)][maxFiles],] # select top maxFiles
 data <- subset(data, Path %in% temp$Path)
 
 # Add percentage of changes within packages
 data$Pct <- round(data$ChangeCount/with(data, ave(ChangeCount, list(Path), FUN = sum))*100, digits=2)
 
-# Select authors that changed the most files in each package
-max <- with(data, tapply(ChangeCount, Path, which.max))
-split <- split(data, data$Path)
-data <- na.omit(do.call(rbind, lapply(1:length(split), function(i) split[[i]][max[i],])))
+# Select authors that changed the most in each package #
+maxChanged <- with(data, tapply(ChangeCount, Path, which.max))
+splitPath <- split(data, data$Path)
+data <- na.omit(do.call(rbind, lapply(1:length(splitPath), function(i) splitPath[[i]][maxChanged[i],])))
+data <- data[order(match(data[,3],temp[,1])),] # Sort data$FilePath by temp$Path to get sorting by most relevant files
 
-# Color
-colorCount <- nrow(subset(data, !duplicated(Author)))
+# Add character count of FilePath to data #
+data$Char <- nchar(as.character(data$Path))
 
 # Plot
 ggplot(data, aes(x=reorder(Path, Pct), y=Pct, fill=Author)) +
+  aes(stringr::str_wrap(data$Path, wrapAtChar), data$Char) +
   scale_fill_brewer(palette=palette) +
   geom_bar(stat="identity") +
-  geom_text(aes(label=paste(Author, "-", Pct, "%")), hjust=-0.05, size=2) +
+  geom_text(aes(label=paste(Author, "-", Pct, "%")), hjust=-0.05, size=3.75) +
   coord_flip() +
   scale_y_continuous(limits=c(0,100), expand=c(0, 0)) +
-  theme(legend.position="none", axis.text.x=element_text(angle=90, hjust=1, vjust=0.30, size=7.5), axis.title=element_text(size=7.5,face="bold"), title=element_text(size=7.5,face="bold")) +
-  labs(x="", y="ChangeCount in %", title="Ownership of Packages")
+  theme(legend.position="none", axis.text.x=element_text(angle=90, hjust=1, vjust=0.30, size=10), axis.title=element_text(size=7.5,face="bold"), title=element_text(size=7.5,face="bold")) +
+  labs(x="", y="ChangeCount in %")
 @
+\caption{Ownership of Packages}
+\end{figure}
+
+\subsubsection*{1.5.3 Ownership of Repository by File}
+
+\begin{figure}[ht]
+\centering
+\caption{Ownership by File ordered by ChangeCount}
+\bigskip
+<<echo=FALSE, fig=TRUE, fig.width=10, fig.height=15>>=
+# Load csv file #
+data <- read.table(file.path("../../result/dukecon/starred/Change-Count-by-Author-by-File.csv"), sep=",", header=TRUE)
+
+# Select the most changed files in the repository #
+temp <- aggregate(ChangeCount ~ FilePath, data, sum) # sum up ChangeCount of every Author
+temp <- temp[with(temp, order(-ChangeCount)),] # sort (descending)
+temp <- temp[temp$ChangeCount >= temp$ChangeCount[order(temp$ChangeCount, decreasing=TRUE)][maxFiles],] # select top maxFiles
+data <- subset(data, FilePath %in% temp$FilePath) # subset data based on temp
+
+# Add percentage of changes within packages #
+data$Pct <- round(data$ChangeCount/with(data, ave(ChangeCount, list(FilePath), FUN = sum))*100, digits=2)
+
+# Select authors that changed the most #
+maxChanged <- with(data, tapply(ChangeCount, FilePath, which.max)) # Needed
+splitPath <- split(data, data$FilePath) # Needed
+data <- na.omit(do.call(rbind, lapply(1:length(splitPath), function(i) splitPath[[i]][maxChanged[i],]))) # Selects authors
+data <- data[order(match(data[,3],temp[,1])),] # Sort data$FilePath by temp$FilePath to get sorting by most relevant files
+
+# Add character count of FilePath to data #
+data$Char <- nchar(as.character(data$FilePath))
+
+# Plot
+ggplot(data, aes(x=FilePath, y=Pct, fill=Author)) +
+  aes(stringr::str_wrap(data$FilePath, wrapAtChar), data$Char) +
+  scale_fill_brewer(palette=palette) +
+  geom_bar(stat="identity") +
+  geom_text(aes(label=paste(Author, "-", Pct, "%")), hjust=-0.05, size=3.75) +
+  coord_flip() +
+  scale_y_continuous(limits=c(0,100), expand=c(0, 0)) +
+  theme(legend.position="none", axis.text.y=element_text(size=10), axis.text.x=element_text(angle=90, hjust=1, vjust=0.30, size=10), axis.title=element_text(size=7.5,face="bold"), title=element_text(size=7.5,face="bold")) +
+  labs(x="", y="Ownership in %")
+@
+\end{figure}
 
 \end{document}
