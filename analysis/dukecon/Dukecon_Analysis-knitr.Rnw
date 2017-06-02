@@ -61,7 +61,7 @@ Some of the shown diagrams in this written report will contain single letters wh
 
 
 \subsection{Change Count by Modification Kind}
-<<echo=FALSE, fig=TRUE, fig.width=4.5, fig.height=4.5, fig.pos='ht', fig.align='center', fig.show='asis'>>=
+<<echo=FALSE, fig.width=4.5, fig.height=4.5, fig.pos='ht', fig.align='center', fig.show='asis'>>=
 # Load
 csv <- read.table(file.path("../../result/dukecon/Change-Count.csv"), sep=",", header=TRUE)
 
@@ -75,12 +75,16 @@ colors <- brewer.pal(max(as.numeric(csv$ModificationKind)), palette)
 # Plot
 pie(slices, labels=labels, col=colors, main="Change Count by Modification Kind")
 @
+Hallo das ist zeug.
+
 
 \subsection{Change Count by Author}
 
+Figute X
+
 \begin{figure}[ht]
 \centering
-<<echo=FALSE, fig=TRUE, fig.width=5, fig.height=5, fig.show='asis'>>=
+<<echo=FALSE, fig.width=5, fig.height=5, fig.show='asis'>>=
 # Load
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Author.csv"), sep=",", header=TRUE)
 
@@ -97,12 +101,17 @@ mosaicplot(subset, col=colors, las=3, ylab="ModificationKind", main="Change Coun
 @
 \end{figure}
 
+Figure X2
+
+
 \subsection{Change Count by Time}
 \subsubsection{Change Count by Month}
 
+fjhfhgfhfghfhf
+
 \begin{figure}[!h]
 \centering
-<<echo=FALSE, fig=TRUE, fig.width=5, fig.height=5>>=
+<<echo=FALSE, fig.width=5, fig.height=5>>=
 # Load
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Date-Month.csv"), sep=",", header=TRUE)
 
@@ -133,11 +142,14 @@ legend(xrange[1], yrange[2], unique(csv$ModificationKind), cex=0.8, col=colors, 
 @
 \end{figure}
 
+Text...
+
+
 \subsubsection{Change Count by Author and Month}
 
 \begin{figure}[ht]
 \centering
-<<echo=FALSE, fig=TRUE, fig.width=5, fig.height=5>>=
+<<echo=FALSE, fig.width=5, fig.height=5>>=
 # Load
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Author-by-Date-Month.csv"), sep=",", header=TRUE)
 
@@ -177,7 +189,7 @@ legend(xrange[1], yrange[2], c("A", "C", "D", "M", "R"), cex=0.8, col=colors, lt
 
 \begin{figure}[ht]
 \centering
-<<echo=FALSE, fig=TRUE, fig.width=5, fig.height=5>>=
+<<echo=FALSE, fig.width=5, fig.height=5>>=
 # Load
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-File-Type.csv"), sep=",", header=TRUE)
 
@@ -199,7 +211,7 @@ ggplot(csv, aes(x=reorder(FileType, ChangeCount), y=ChangeCount)) +
 
 \begin{figure}[ht]
 \centering
-<<echo=FALSE, fig=TRUE, fig.width=5, fig.height=5>>=
+<<echo=FALSE, fig.width=5, fig.height=5>>=
 # Load
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-File-Type-by-Author.csv"), sep=",", header=TRUE)
 
@@ -239,7 +251,7 @@ grid.arrange(plot1, plot2, nrow=2)
 
 \begin{figure}[ht]
 \centering
-<<echo=FALSE, fig=TRUE, fig.width=5, fig.height=5>>=
+<<echo=FALSE, fig.width=5, fig.height=5>>=
 # Load
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-File-Type-by-Author.csv"), sep=",", header=TRUE)
   
@@ -276,7 +288,7 @@ grid.arrange(plot1, plot2, nrow=2)
 
 \begin{figure}[ht]
 \centering
-<<echo=FALSE, fig=TRUE, fig.width=10, fig.height=15>>=
+<<echo=FALSE, fig.width=10, fig.height=15>>=
 # Load data
 data <- read.table(file.path("../../result/dukecon/starred/Change-Count-by-Author-by-Package.csv"), sep=",", header=TRUE)
 
@@ -316,7 +328,7 @@ ggplot(data, aes(x=reorder(Path, Pct), y=Pct, fill=Author)) +
 
 \begin{figure}[ht]
 \centering
-<<echo=FALSE, fig=TRUE, fig.width=10, fig.height=15, fig.show='asis'>>=
+<<echo=FALSE, fig.width=10, fig.height=15, fig.show='asis'>>=
 # Load csv file #
 data <- read.table(file.path("../../result/dukecon/starred/Change-Count-by-Author-by-File.csv"), sep=",", header=TRUE)
 

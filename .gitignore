@@ -11,4 +11,5 @@ target/
 /analysis/*/*.csv
 /analysis/*/*.gz
 /analysis/*/*.RData
+/analysis/*/*.sty
 !/analysis/*/*_Analysis.pdf
