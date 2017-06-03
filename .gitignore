@@ -6,7 +6,7 @@ target/
 /analysis/*/.Rhistory
 /analysis/*/*.tex
 /analysis/*/*.log
-/analysis/*/*.pdf
+/analysis/**/*.pdf
 /analysis/*/*.gz(busy)
 /analysis/*/*.csv
 /analysis/*/*.gz
