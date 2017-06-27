@@ -11,17 +11,16 @@ Authors
 -   [70415245 | Lisa Rosenberg](https://github.com/lisa-rosenberg)
 -   [70428153 | Dmitrij Drandarov](https://github.com/dmitrij-drandarov)
 
-Abstract
---------
+Introduction
+------------
 
-<Text>
+Setup
+-----
 
 Analysis
 --------
 
 ### Basic Information
-
-Some of the shown diagrams in this written report will contain single letters which are abbreviations for certain modification kinds used by Git. A complete list of possible modification kinds and their meaning follows below.
 
 -   A → Added
 -   C → Copied
@@ -33,8 +32,14 @@ Some of the shown diagrams in this written report will contain single letters wh
 -   X → Unknown
 -   B → Have had their pairing Broken
 
-Change Count by Modification Kind
----------------------------------
+Changes in Repository by Modification Kind
+------------------------------------------
+
+``` cypher
+MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+RETURN change.modificationKind AS ModificationKind, count(change.modificationKind) AS ChangeCount
+  ORDER BY ChangeCount DESC
+```
 
 ``` r
 # # Load data
@@ -51,10 +56,16 @@ colors <- brewer.pal(max(as.numeric(csv$ModificationKind)), palette)
 pie(slices, labels=labels, col=colors, main="Change Count by Modification Kind")
 ```
 
-![](Repository_Analysis_files/figure-markdown_github/unnamed-chunk-2-1.png)
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-3-1.png)
 
 Change Count by Author
 ----------------------
+
+``` cypher
+MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+RETURN author.name AS Author, change.modificationKind AS ModificationKind
+    ORDER BY ModificationKind, Author
+```
 
 ``` r
 # # Load data
@@ -69,15 +80,26 @@ subset <- table[table(csv$Author)>percentage,]
 colors <- brewer.pal(max(as.numeric(csv$ModificationKind)), palette)
 
 # # Display plot
-mosaicplot(subset, col=colors, las=3, ylab="ModificationKind", main="Change Count by Authors", cex.axis=0.8, mar=c(0,0,0,0))
+mosaicplot(subset, col=colors, las=3, ylab="ModificationKind", main="Change Count by Authors", cex.axis=0.8, mar=c(0,0,0,0), pop=FALSE)
 ```
 
-![](Repository_Analysis_files/figure-markdown_github/unnamed-chunk-3-1.png)
+    ## Warning: In mosaicplot.default(subset, col = colors, las = 3, ylab = "ModificationKind", 
+    ##     main = "Change Count by Authors", cex.axis = 0.8, mar = c(0, 
+    ##         0, 0, 0), pop = FALSE) :
+    ##  extra argument 'pop' will be disregarded
+
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-5-1.png)
 
 Change Count by Time
 --------------------
 
 ### Change Count by Month
+
+``` cypher
+MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+RETURN split(commit.date,'-')[0]+'-'+split(commit.date,'-')[1] AS CommitDate, change.modificationKind AS ModificationKind, count(change) AS ChangeCount
+  ORDER BY ModificationKind, CommitDate, ChangeCount DESC
+```
 
 ``` r
 # # Load data
@@ -109,9 +131,15 @@ for (i in 1:max(numModificationKind)) {
 legend(xrange[1], yrange[2], unique(csv$ModificationKind), cex=0.8, col=colors, lty=1, title="ModKind")
 ```
 
-![](Repository_Analysis_files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-7-1.png)
 
 ### Change Count by Author and Month
+
+``` cypher
+MATCH  (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+RETURN author.name AS Author, split(commit.date,'-')[0]+'-'+split(commit.date,'-')[1] AS CommitDate, change.modificationKind AS ModificationKind, count(change) AS ChangeCount
+  ORDER BY CommitDate, ChangeCount DESC, ModificationKind
+```
 
 ``` r
 # # Load data
@@ -145,12 +173,20 @@ for (i in 1:max(numModificationKind)) {
 legend(xrange[1], yrange[2], c("A", "C", "D", "M", "R"), cex=0.8, col=colors, lty=1, title="ModKind")
 ```
 
-![](Repository_Analysis_files/figure-markdown_github/unnamed-chunk-5-1.png)
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-9-1.png)
 
 Change Count by File Type
 -------------------------
 
 ### Change Count by File Type
+
+``` cypher
+MATCH (change:Change)-[MODIFIES]->(file:File)
+WITH split(file.relativePath, '.')[1] AS FileType, change
+  WHERE FileType <> 'null' AND NOT(FileType CONTAINS '/')
+RETURN FileType, count(change) AS ChangeCount
+  ORDER BY ChangeCount DESC, FileType
+```
 
 ``` r
 # # Load data
@@ -169,9 +205,17 @@ ggplot(csv, aes(x=reorder(FileType, ChangeCount), y=ChangeCount)) +
   labs(x="FileType", title="Ownership by File ordered by ChangeCount")
 ```
 
-![](Repository_Analysis_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-11-1.png)
 
 ### Change Count by File Type and Author
+
+``` cypher
+MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+WITH change.modificationKind AS ModificationKind, author.name AS Author, split(file.relativePath, '.')[1] AS FileType
+  WHERE NOT(FileType CONTAINS '/')
+RETURN Author, FileType
+  ORDER BY Author, FileType
+```
 
 ``` r
 # # Load data
@@ -207,12 +251,19 @@ plot2 <- ggplot(subset2, aes(x=factor(FileType))) +
 grid.arrange(plot1, plot2, nrow=2)
 ```
 
-![](Repository_Analysis_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-13-1.png)
 
 Ownership of Repository
 -----------------------
 
 ### Ownership of Repository by File Type
+
+``` cypher
+MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+WITH change.modificationKind AS ModificationKind, author.name AS Author, split(file.relativePath, '.')[1] AS FileType
+RETURN Author, count(ModificationKind), ModificationKind, FileType
+  ORDER BY ModificationKind, count(ModificationKind) DESC, Author
+```
 
 ``` r
 # # Load data
@@ -247,9 +298,29 @@ plot2 <- ggplot(data.frame(proportion2), aes(x=Var1, y=Freq)) +
 grid.arrange(plot1, plot2, nrow=2)
 ```
 
-![](Repository_Analysis_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-15-1.png)
 
 ### Ownership of Repository by Package
+
+``` cypher
+MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+WITH file, change, author.name AS Author,
+     split(file.relativePath, '/')[0] + '/' AS Path
+  WHERE NOT(Path CONTAINS '.')
+RETURN Author, count(change) AS ChangeCount, Path
+  ORDER BY Path, ChangeCount DESC
+
+UNION
+MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+WITH file, change, author.name AS Author,
+     split(file.relativePath, '/')[0] + '/' +
+     split(file.relativePath, '/')[1] + '/' AS Path
+  WHERE NOT(Path CONTAINS '.')
+RETURN Author, count(change) AS ChangeCount, Path
+  ORDER BY Path, ChangeCount DESC
+
+UNION ...
+```
 
 ``` r
 # # Load data
@@ -288,9 +359,29 @@ ggplot(data, aes(x=reorder(Path, Pct), y=Pct, fill=Author)) +
   labs(x="", y="ChangeCount in %", title="Ownership of Packages")
 ```
 
-![](Repository_Analysis_files/figure-markdown_github/unnamed-chunk-9-1.png)
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-17-1.png)
 
 ### Ownership of Repository by File
+
+``` cypher
+MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+WITH file, change, author.name AS Author,
+     split(file.relativePath, '/')[0] AS FilePath
+  WHERE (FilePath CONTAINS '.')
+RETURN Author, count(change) AS ChangeCount, FilePath
+  ORDER BY FilePath, ChangeCount DESC
+
+UNION
+MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+WITH file, change, author.name AS Author,
+     split(file.relativePath, '/')[0] + '/' +
+     split(file.relativePath, '/')[1] AS FilePath
+  WHERE (FilePath CONTAINS '.')
+RETURN Author, count(change) AS ChangeCount, FilePath
+  ORDER BY FilePath, ChangeCount DESC
+
+UNION ...
+```
 
 ``` r
 # # Load data
@@ -328,4 +419,4 @@ ggplot(data, aes(x=FilePath, y=Pct, fill=Author)) +
   labs(x="", y="Ownership in %", title="Ownership by File ordered by ChangeCount")
 ```
 
-![](Repository_Analysis_files/figure-markdown_github/unnamed-chunk-10-1.png)
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-19-1.png)

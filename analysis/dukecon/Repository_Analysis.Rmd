@@ -10,8 +10,12 @@ output: github_document
 
 
 
-## Abstract
-<Text>
+## Introduction
+
+
+
+## Setup
+
 
 
 ## Analysis
@@ -34,18 +38,16 @@ library(plyr)
 library(vcd)
 
 # # Set variables
-palette = "Dark2" # ggplot palette name
+palette <- "Dark2" # ggplot palette name
 wrapAtChar <- 25 # wrap label names
 maxFiles <- 25 # number of most changed files
 
 # # Set functions
-getPalette = colorRampPalette(brewer.pal(7, palette))
+getPalette <- colorRampPalette(brewer.pal(7, palette))
 ```
 
 
 ### Basic Information
-Some of the shown diagrams in this written report will contain single letters which are abbreviations for certain modification kinds used by Git. A complete list of possible modification kinds and their meaning follows below.
-
   - A → Added
   - C → Copied
   - D → Deleted
@@ -58,7 +60,13 @@ Some of the shown diagrams in this written report will contain single letters wh
 
 
 
-## Change Count by Modification Kind
+## Changes in Repository by Modification Kind
+```{cypher}
+MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+RETURN change.modificationKind AS ModificationKind, count(change.modificationKind) AS ChangeCount
+  ORDER BY ChangeCount DESC
+```
+
 ```{r fig.width=7.5, fig.height=7.5}
 # # Load data
 csv <- read.table(file.path("../../result/dukecon/Change-Count.csv"), sep=",", header=TRUE)
@@ -74,9 +82,13 @@ colors <- brewer.pal(max(as.numeric(csv$ModificationKind)), palette)
 pie(slices, labels=labels, col=colors, main="Change Count by Modification Kind")
 ```
 
-
-
 ## Change Count by Author
+```{cypher}
+MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+RETURN author.name AS Author, change.modificationKind AS ModificationKind
+    ORDER BY ModificationKind, Author
+```
+
 ```{r fig.width=10, fig.height=10}
 # # Load data
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Author.csv"), sep=",", header=TRUE)
@@ -90,13 +102,21 @@ subset <- table[table(csv$Author)>percentage,]
 colors <- brewer.pal(max(as.numeric(csv$ModificationKind)), palette)
 
 # # Display plot
-mosaicplot(subset, col=colors, las=3, ylab="ModificationKind", main="Change Count by Authors", cex.axis=0.8, mar=c(0,0,0,0))
+mosaicplot(subset, col=colors, las=3, ylab="ModificationKind", main="Change Count by Authors", cex.axis=0.8, mar=c(0,0,0,0), pop=FALSE)
 ```
 
 
 
 ## Change Count by Time
+
+
 ### Change Count by Month
+```{cypher}
+MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+RETURN split(commit.date,'-')[0]+'-'+split(commit.date,'-')[1] AS CommitDate, change.modificationKind AS ModificationKind, count(change) AS ChangeCount
+  ORDER BY ModificationKind, CommitDate, ChangeCount DESC
+```
+
 ```{r fig.width=10, fig.height=10}
 # # Load data
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Date-Month.csv"), sep=",", header=TRUE)
@@ -129,6 +149,12 @@ legend(xrange[1], yrange[2], unique(csv$ModificationKind), cex=0.8, col=colors, 
 
 
 ### Change Count by Author and Month
+```{cypher}
+MATCH  (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+RETURN author.name AS Author, split(commit.date,'-')[0]+'-'+split(commit.date,'-')[1] AS CommitDate, change.modificationKind AS ModificationKind, count(change) AS ChangeCount
+  ORDER BY CommitDate, ChangeCount DESC, ModificationKind
+```
+
 ```{r fig.width=10, fig.height=10}
 # # Load data
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Author-by-Date-Month.csv"), sep=",", header=TRUE)
@@ -164,7 +190,17 @@ legend(xrange[1], yrange[2], c("A", "C", "D", "M", "R"), cex=0.8, col=colors, lt
 
 
 ## Change Count by File Type
+
+
 ### Change Count by File Type
+```{cypher}
+MATCH (change:Change)-[MODIFIES]->(file:File)
+WITH split(file.relativePath, '.')[1] AS FileType, change
+  WHERE FileType <> 'null' AND NOT(FileType CONTAINS '/')
+RETURN FileType, count(change) AS ChangeCount
+  ORDER BY ChangeCount DESC, FileType
+```
+
 ```{r fig.width=10, fig.height=15}
 # # Load data
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-File-Type.csv"), sep=",", header=TRUE)
@@ -184,6 +220,14 @@ ggplot(csv, aes(x=reorder(FileType, ChangeCount), y=ChangeCount)) +
 
 
 ### Change Count by File Type and Author
+```{cypher}
+MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+WITH change.modificationKind AS ModificationKind, author.name AS Author, split(file.relativePath, '.')[1] AS FileType
+  WHERE NOT(FileType CONTAINS '/')
+RETURN Author, FileType
+  ORDER BY Author, FileType
+```
+
 ```{r fig.width=10, fig.height=10}
 # # Load data
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-File-Type-by-Author.csv"), sep=",", header=TRUE)
@@ -219,8 +263,18 @@ grid.arrange(plot1, plot2, nrow=2)
 ```
 
 
+
 ## Ownership of Repository
+
+
 ### Ownership of Repository by File Type
+```{cypher}
+MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+WITH change.modificationKind AS ModificationKind, author.name AS Author, split(file.relativePath, '.')[1] AS FileType
+RETURN Author, count(ModificationKind), ModificationKind, FileType
+  ORDER BY ModificationKind, count(ModificationKind) DESC, Author
+```
+
 ```{r fig.width=10, fig.height=10}
 # # Load data
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-File-Type-by-Author.csv"), sep=",", header=TRUE)
@@ -256,6 +310,26 @@ grid.arrange(plot1, plot2, nrow=2)
 
 
 ### Ownership of Repository by Package
+```{cypher}
+MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+WITH file, change, author.name AS Author,
+     split(file.relativePath, '/')[0] + '/' AS Path
+  WHERE NOT(Path CONTAINS '.')
+RETURN Author, count(change) AS ChangeCount, Path
+  ORDER BY Path, ChangeCount DESC
+
+UNION
+MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+WITH file, change, author.name AS Author,
+     split(file.relativePath, '/')[0] + '/' +
+     split(file.relativePath, '/')[1] + '/' AS Path
+  WHERE NOT(Path CONTAINS '.')
+RETURN Author, count(change) AS ChangeCount, Path
+  ORDER BY Path, ChangeCount DESC
+
+UNION ...
+```
+
 ```{r fig.width=10, fig.height=15}
 # # Load data
 data <- read.table(file.path("../../result/dukecon/starred/Change-Count-by-Author-by-Package.csv"), sep=",", header=TRUE)
@@ -295,6 +369,26 @@ ggplot(data, aes(x=reorder(Path, Pct), y=Pct, fill=Author)) +
 
 
 ### Ownership of Repository by File
+```{cypher}
+MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+WITH file, change, author.name AS Author,
+     split(file.relativePath, '/')[0] AS FilePath
+  WHERE (FilePath CONTAINS '.')
+RETURN Author, count(change) AS ChangeCount, FilePath
+  ORDER BY FilePath, ChangeCount DESC
+
+UNION
+MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+WITH file, change, author.name AS Author,
+     split(file.relativePath, '/')[0] + '/' +
+     split(file.relativePath, '/')[1] AS FilePath
+  WHERE (FilePath CONTAINS '.')
+RETURN Author, count(change) AS ChangeCount, FilePath
+  ORDER BY FilePath, ChangeCount DESC
+
+UNION ...
+```
+
 ```{r fig.width=10, fig.height=15}
 # # Load data
 data <- read.table(file.path("../../result/dukecon/starred/Change-Count-by-Author-by-File.csv"), sep=",", header=TRUE)
