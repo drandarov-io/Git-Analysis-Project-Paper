@@ -3,17 +3,15 @@ title: "Git-Repository Analysis"
 output:
     github_document:
         toc: true
-        toc_depth: 3
+        toc_depth: 4
 ---
-
-# Repository Analysis
-
 
 
 ## Introduction
 
 ### Context
 - Knowledge Management | Project Paper
+
 
 ### Authors
 
@@ -29,10 +27,12 @@ output:
 - [jQAssistant](https://github.com/buschmais/jqassistant)
 - [jQAssistant Git-Plugin](https://github.com/kontext-e/jqassistant-plugins/blob/master/git/src/main/asciidoc/git.adoc)
 
+
 ### Instructions
 
-1. Fügen Sie das jQAssistant-Plugin in die pom.xml Ihres Maven-Projekts ein
-``` xml
+- Fügen Sie das jQAssistant-Plugin in die pom.xml Ihres Maven-Projekts ein
+
+```{xml}
 <build>
     <plugins>
         <plugin>
@@ -67,15 +67,16 @@ output:
 </build>
 ```
 
-2. Führen Sie folgende Maven-Befehle aus:
+- Führen Sie folgende Maven-Befehle aus:
+
 ```
 mvn install
 mvn jqassistant:server
 ```
 
-3. Öffnen Sie http://localhost:7474 in Ihrem Browser zum Zugriff auf die Neo4j Datenbank
+- Öffnen Sie http://localhost:7474 in Ihrem Browser zum Zugriff auf die Neo4j Datenbank
 
-4. Führen Sie nach belieben Cypher-Queries aus. Die Ergebnisse lassen sich als csv-Dateien exportieren und z.B. mit R analysieren
+- Führen Sie nach Belieben Cypher-Queries aus. Die Ergebnisse lassen sich als csv-Dateien exportieren und z.B. mit R analysieren
 
 
 
@@ -90,6 +91,9 @@ mvn jqassistant:server
 #install.packages("gridExtra")
 #install.packages("plyr")
 #install.packages("vcd")
+#install.packages("tm")
+#install.packages("wordcloud")
+#install.packages("SnowballC")
 # Load libraries
 library(zoo)
 library(ggplot2)
@@ -98,6 +102,9 @@ library(scales)
 library(gridExtra)
 library(plyr)
 library(vcd)
+library(tm)
+library(wordcloud)
+library(SnowballC)
 
 # # Set variables
 palette <- "Dark2"  # ggplot palette name
@@ -108,24 +115,23 @@ maxFiles <- 25      # number of most changed files
 getPalette <- colorRampPalette(brewer.pal(7, palette))
 ```
 
-
-### Basic Information
 Git kodiert verschiedene Modifikationen von Dateien als Buchstaben. Unten sieht man eine Auflistung aller möglichen Werte mit ihrer jeweiligen bedeutung.
-  - A → Added
-  - C → Copied
-  - D → Deleted
-  - M → Modified
-  - R → Renamed
-  - T → Have their type (mode) changed
-  - U → Unmerged
-  - X → Unknown
-  - B → Have had their pairing Broken
+
+- A → Added
+- C → Copied
+- D → Deleted
+- M → Modified
+- R → Renamed
+- T → Have their type (mode) changed
+- U → Unmerged
+- X → Unknown
+- B → Have had their pairing Broken
 
 
 
-## Changes in Repository
+### Changes in Repository
 
-### Change Count by Modification Kind
+#### Change Count by Modification Kind
 ```{java}
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
 RETURN change.modificationKind AS ModificationKind, count(change.modificationKind) AS ChangeCount
@@ -148,7 +154,7 @@ pie(slices, labels=labels, col=colors, main="Change Count by Modification Kind")
 ```
 
 
-### Change Count by Modification Kind and Authors
+#### Change Count by Modification Kind and Authors
 ```{java}
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
 RETURN author.name AS Author, change.modificationKind AS ModificationKind
@@ -173,9 +179,9 @@ mosaicplot(subset, col=colors, las=3, ylab="ModificationKind", main="Change Coun
 
 
 
-## Changes by Time
+### Changes by Time
 
-### Change Count by Month
+#### Change Count by Month
 ```{java}
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
 RETURN split(commit.date,'-')[0]+'-'+split(commit.date,'-')[1] AS CommitDate, change.modificationKind AS ModificationKind, count(change) AS ChangeCount
@@ -213,7 +219,7 @@ legend(xrange[1], yrange[2], unique(csv$ModificationKind), cex=0.8, col=colors, 
 ```
 
 
-### Change Count by Month and Authors
+#### Change Count by Month and Authors
 ```{java}
 MATCH  (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
 RETURN author.name AS Author, split(commit.date,'-')[0]+'-'+split(commit.date,'-')[1] AS CommitDate, change.modificationKind AS ModificationKind, count(change) AS ChangeCount
@@ -254,9 +260,9 @@ legend(xrange[1], yrange[2], c("A", "C", "D", "M", "R"), cex=0.8, col=colors, lt
 
 
 
-## Changes by File Type
+### Changes by File Type
 
-### Change Count by File Type
+#### Change Count by File Type
 ```{java}
 MATCH (change:Change)-[MODIFIES]->(file:File)
 WITH split(file.relativePath, '.')[1] AS FileType, change
@@ -283,7 +289,7 @@ ggplot(csv, aes(x=reorder(FileType, ChangeCount), y=ChangeCount)) +
 ```
 
 
-### Change Count by File Type and Authors
+#### Change Count by File Type and Authors
 ```{java}
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
 WITH change.modificationKind AS ModificationKind, author.name AS Author, split(file.relativePath, '.')[1] AS FileType
@@ -328,9 +334,9 @@ grid.arrange(plot1, plot2, nrow=2)
 
 
 
-## Ownership of Repository
+### Ownership of Repository
 
-### Ownership of Repository by File Types and Authors
+#### Ownership of Repository by File Types and Authors
 ```{java}
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
 WITH change.modificationKind AS ModificationKind, author.name AS Author, split(file.relativePath, '.')[1] AS FileType
@@ -372,7 +378,7 @@ grid.arrange(plot1, plot2, nrow=2)
 ```
 
 
-### Ownership of Repository by Packages
+#### Ownership of Repository by Packages
 ```{java}
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
 WITH file, change, author.name AS Author,
@@ -430,7 +436,7 @@ ggplot(data, aes(x=reorder(Path, Pct), y=Pct, fill=Author)) +
 ```
 
 
-### Ownership of Repository by Files
+#### Ownership of Repository by Files
 ```{java}
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
 WITH file, change, author.name AS Author,
@@ -484,4 +490,107 @@ ggplot(data, aes(x=FilePath, y=Pct, fill=Author)) +
   scale_y_continuous(limits=c(0,100), expand=c(0, 0)) +
   theme(legend.position="none", axis.text.y=element_text(size=10), axis.text.x=element_text(angle=90, hjust=1, vjust=0.30, size=10), axis.title=element_text(size=7.5,face="bold"), title=element_text(size=10,face="bold")) +
   labs(x="", y="Ownership in %", title="Ownership of Authors by most relevant Files")
+```
+
+
+
+### Most used Words
+
+#### Word Cloud of Repository
+```{cypher}
+MATCH (commit:Commit)
+WITH collect(commit) AS Commits
+RETURN
+  collect(DISTINCT
+  split(
+
+  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
+  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
+  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
+  replace(
+
+  toUpper(
+  reduce(words = '', aCommit IN Commits | words + aCommit.message)
+  ),
+
+  '"', ' '), "'", ' '), '#', ' '), ',', ' '), '(', ' '), ')', ' '), '-', ' '), '+', ' '), '…', ' '), ';', ' '),
+  '. ', ' '), '?', ' '), '!', ' '),
+  ' OF ', ' '), ' THE ', ' '), ' BRANCH ', ' '), ' INTO ', ' '), ' AND ', ' '), ' FOR ', ' '), ' WITH ', ' '),
+  ' PULL ', ' '), ' WE ', ' '), ' HAVE ', ' '), ' A ', ' '), ' MORE ', ' '), ' TO ', ' '), ' PRO ', ' '), ' ON ', ' '),
+  ' AN ', ' '), ' IT ', ' '), ' SOME ', ' '), ' SIMPLE ', ' '), ' EASY ', ' '), ' FROM ', ' '), ' OUT ', ' '),
+  ' IN ', ' '), ' IS ', ' '), ' OR ', ' '), ' THERE ', ' '), ' THEIR ', ' '),
+  '   ', ' '), '  ', ' '), ' ', '_')
+
+  , '_')
+  ) AS Words
+```
+
+```{r fig.width=10, fig.height=5}
+# # Load data
+data <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words.txt"))
+
+# # Filter data
+data <- tm_map(data, stripWhitespace)
+data <- tm_map(data, tolower)
+data <- tm_map(data, removeWords, stopwords("english"))
+
+# # Display word cloud
+wordcloud(data, scale=c(5,0.5), max.words=75, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
+```
+
+
+#### Word Cloud of Repository by File Type
+```{cypher}
+MATCH (commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+WITH collect(commit) AS Commits, change, split(file.relativePath, '.')[1] AS FileType
+RETURN
+  FileType,
+  collect(DISTINCT
+  split(
+
+  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
+  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
+  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
+  replace(
+
+  toUpper(
+  reduce(words = '', aCommit IN Commits | words + aCommit.message)
+  ),
+
+  '"', ' '), "'", ' '), '#', ' '), ',', ' '), '(', ' '), ')', ' '), '-', ' '), '+', ' '), '…', ' '), ';', ' '),
+  '. ', ' '), '?', ' '), '!', ' '),
+  ' OF ', ' '), ' THE ', ' '), ' BRANCH ', ' '), ' INTO ', ' '), ' AND ', ' '), ' FOR ', ' '), ' WITH ', ' '),
+  ' PULL ', ' '), ' WE ', ' '), ' HAVE ', ' '), ' A ', ' '), ' MORE ', ' '), ' TO ', ' '), ' PRO ', ' '), ' ON ', ' '),
+  ' AN ', ' '), ' IT ', ' '), ' SOME ', ' '), ' SIMPLE ', ' '), ' EASY ', ' '), ' FROM ', ' '), ' OUT ', ' '),
+  ' IN ', ' '), ' IS ', ' '), ' OR ', ' '), ' THERE ', ' '), ' THEIR ', ' '),
+  '   ', ' '), '  ', ' '), ' ', '_')
+
+  , '_')
+  ) AS WordsByFileType
+```
+
+```{r fig.width=10, fig.height=5}
+# # Load data
+data <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-File-Type-java.txt"))
+
+# # Filter data
+data <- tm_map(data, stripWhitespace)
+data <- tm_map(data, tolower)
+data <- tm_map(data, removeWords, stopwords("english"))
+
+# # Display word cloud
+wordcloud(data, scale=c(5,0.5), max.words=75, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
+```
+
+```{r fig.width=10, fig.height=5}
+# # Load data
+data <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-File-Type-xml.txt"))
+
+# # Filter data
+data <- tm_map(data, stripWhitespace)
+data <- tm_map(data, tolower)
+data <- tm_map(data, removeWords, stopwords("english"))
+
+# # Display word cloud
+wordcloud(data, scale=c(5,0.5), max.words=75, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
 ```
