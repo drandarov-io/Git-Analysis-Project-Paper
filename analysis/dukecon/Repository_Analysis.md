@@ -583,14 +583,14 @@ data <- tm_map(data, tolower)
 data <- tm_map(data, removeWords, stopwords("english"))
 
 # # Display word cloud
-wordcloud(data, scale=c(5,0.5), max.words=75, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
+wordcloud(data, scale=c(5,0.5), max.words=100, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
 ```
 
 ![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-14-1.png)
 
 ``` r
 # # Load data
-data <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-File-Type-xml.txt"))
+data <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-Author-sippach.txt"))
 
 # # Filter data
 data <- tm_map(data, stripWhitespace)
@@ -598,7 +598,31 @@ data <- tm_map(data, tolower)
 data <- tm_map(data, removeWords, stopwords("english"))
 
 # # Display word cloud
-wordcloud(data, scale=c(5,0.5), max.words=75, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
+wordcloud(data, scale=c(5,0.5), max.words=50, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
 ```
 
 ![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-15-1.png)
+
+``` r
+# # Load data
+data <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-Author-schwartz.txt"))
+
+# # Filter data
+data <- tm_map(data, stripWhitespace)
+data <- tm_map(data, tolower)
+data <- tm_map(data, removeWords, stopwords("english"))
+
+# # Display word cloud
+wordcloud(data, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
+```
+
+    ## Warning in wordcloud(data, scale = c(5, 0.5), max.words = 100, min.freq =
+    ## 2, : upstream could not be fit on page. It will not be plotted.
+
+    ## Warning in wordcloud(data, scale = c(5, 0.5), max.words = 100, min.freq =
+    ## 2, : workshop could not be fit on page. It will not be plotted.
+
+    ## Warning in wordcloud(data, scale = c(5, 0.5), max.words = 100, min.freq =
+    ## 2, : wrapper could not be fit on page. It will not be plotted.
+
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-16-1.png)
