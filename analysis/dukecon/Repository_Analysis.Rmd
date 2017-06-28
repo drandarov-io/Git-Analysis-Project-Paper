@@ -140,7 +140,7 @@ RETURN change.modificationKind AS ModificationKind, count(change.modificationKin
   ORDER BY ChangeCount DESC
 ```
 
-```{r change-count-by-modification-kind, fig.width=7.5, fig.height=7.5}
+```{r change-count-by-modification-kind, fig.width=7.5, fig.height=7.5, warning=FALSE}
 # # Load data
 csv <- read.table(file.path("../../result/dukecon/Change-Count.csv"), sep=",", header=TRUE)
 
@@ -167,7 +167,7 @@ RETURN author.name AS Author, change.modificationKind AS ModificationKind
     ORDER BY ModificationKind, Author
 ```
 
-```{r change-count-by-modification-kind-and-author, fig.width=10, fig.height=10}
+```{r change-count-by-modification-kind-and-author, fig.width=10, fig.height=10, warning=FALSE}
 # # Load data
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Author.csv"), sep=",", header=TRUE)
 
@@ -197,7 +197,7 @@ RETURN split(commit.date,'-')[0]+'-'+split(commit.date,'-')[1] AS CommitDate, ch
   ORDER BY ModificationKind, CommitDate, ChangeCount DESC
 ```
 
-```{r change-count-by-month, fig.width=10, fig.height=10}
+```{r change-count-by-month, fig.width=10, fig.height=10, warning=FALSE}
 # # Load data
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Date-Month.csv"), sep=",", header=TRUE)
 
@@ -240,7 +240,7 @@ RETURN author.name AS Author, split(commit.date,'-')[0]+'-'+split(commit.date,'-
   ORDER BY CommitDate, ChangeCount DESC, ModificationKind
 ```
 
-```{r change-counts-of-falk-sippach, fig.width=10, fig.height=10}
+```{r change-counts-of-falk-sippach, fig.width=10, fig.height=10, warning=FALSE}
 # # Load data
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-Author-by-Date-Month.csv"), sep=",", header=TRUE)
 
@@ -288,7 +288,7 @@ RETURN FileType, count(change) AS ChangeCount
   ORDER BY ChangeCount DESC, FileType
 ```
 
-```{r change-count-by-file-type, fig.width=10, fig.height=15}
+```{r change-count-by-file-type, fig.width=10, fig.height=15, warning=FALSE}
 # # Load data
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-File-Type.csv"), sep=",", header=TRUE)
 
@@ -319,7 +319,7 @@ RETURN Author, FileType
   ORDER BY Author, FileType
 ```
 
-```{r change-counts-of-author-by-file-type, fig.width=10, fig.height=10}
+```{r change-counts-of-author-by-file-type, fig.width=10, fig.height=10, warning=FALSE}
 # # Load data
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-File-Type-by-Author.csv"), sep=",", header=TRUE)
 
@@ -369,7 +369,7 @@ RETURN Author, count(ModificationKind), ModificationKind, FileType
   ORDER BY ModificationKind, count(ModificationKind) DESC, Author
 ```
 
-```{r ownership-of-repository-of-author-by-file-types, fig.width=10, fig.height=10}
+```{r ownership-of-repository-of-author-by-file-types, fig.width=10, fig.height=10, warning=FALSE}
 # # Load data
 csv <- read.table(file.path("../../result/dukecon/wip/Change-Count-by-File-Type-by-Author.csv"), sep=",", header=TRUE)
   
@@ -428,7 +428,7 @@ RETURN Author, count(change) AS ChangeCount, Path
 UNION ...
 ```
 
-```{r ownership-of-authors-by-most-relevant-packages, fig.width=10, fig.height=15}
+```{r ownership-of-authors-by-most-relevant-packages, fig.width=10, fig.height=15, warning=FALSE}
 # # Load data
 data <- read.table(file.path("../../result/dukecon/starred/Change-Count-by-Author-by-Package.csv"), sep=",", header=TRUE)
 
@@ -490,7 +490,7 @@ RETURN Author, count(change) AS ChangeCount, FilePath
 UNION ...
 ```
 
-```{r ownership-of-authors-by-most-relevant-files, fig.width=10, fig.height=15}
+```{r ownership-of-authors-by-most-relevant-files, fig.width=10, fig.height=15, warning=FALSE}
 # # Load data
 data <- read.table(file.path("../../result/dukecon/starred/Change-Count-by-Author-by-File.csv"), sep=",", header=TRUE)
 
@@ -563,7 +563,7 @@ RETURN
   ) AS Words
 ```
 
-```{r commit-massage-by-most-used-words, fig.width=10, fig.height=5}
+```{r commit-massage-by-most-used-words, fig.width=10, fig.height=5, warning=FALSE}
 # # Load data
 data <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words.txt"))
 
@@ -573,7 +573,9 @@ data <- tm_map(data, tolower)
 data <- tm_map(data, removeWords, stopwords("english"))
 
 # # Display word cloud
-wordcloud(data, scale=c(5,0.5), max.words=75, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
+par(mfrow=c(1, 1), oma=c(0,0,2,0))
+wordcloud(data, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
+title("Commit message by most used words", outer=TRUE)
 ```
 
 xxxxxxxxxxxxx
@@ -611,41 +613,75 @@ RETURN
   ) AS WordsByFileType
 ```
 
-```{r commit-message-by-most-used-words-java, fig.width=10, fig.height=5}
+```{r commit-message-by-most-used-words-file-type, fig.width=10, fig.height=5, warning=FALSE}
 # # Load data
-data <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-File-Type-java.txt"))
+data1 <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-File-Type-java.txt"))
+data2 <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-File-Type-xml.txt"))
 
 # # Filter data
-data <- tm_map(data, stripWhitespace)
-data <- tm_map(data, tolower)
-data <- tm_map(data, removeWords, stopwords("english"))
+data1 <- tm_map(data, stripWhitespace)
+data1 <- tm_map(data, tolower)
+data1 <- tm_map(data, removeWords, stopwords("english"))
+data2 <- tm_map(data, stripWhitespace)
+data2 <- tm_map(data, tolower)
+data2 <- tm_map(data, removeWords, stopwords("english"))
 
 # # Display word cloud
-wordcloud(data, scale=c(5,0.5), max.words=100, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
+par(mfrow=c(1, 2), oma=c(0,0,2,0))
+wordcloud(data1, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
+wordcloud(data2, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
+title("Commit message by most used words by file type java (left) and xml (right)", outer=TRUE)
 ```
 
-```{r commit-mesage-by-most-used-words-xml, fig.width=10, fig.height=5}
-# # Load data
-data <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-Author-sippach.txt"))
 
-# # Filter data
-data <- tm_map(data, stripWhitespace)
-data <- tm_map(data, tolower)
-data <- tm_map(data, removeWords, stopwords("english"))
+#### Word Cloud of Repository by Author
+```{cypher}
+MATCH (author:Author)-[COMMITED]->(commit:Commit)
+WITH collect(commit) AS Commits, author.name AS Author
+RETURN
+  Author,
+  collect(DISTINCT
+  split(
 
-# # Display word cloud
-wordcloud(data, scale=c(5,0.5), max.words=50, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
+  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
+  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
+  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
+  replace(
+
+  toUpper(
+  reduce(words = '', aCommit IN Commits | words + aCommit.message)
+  ),
+
+  '"', ' '), "'", ' '), '#', ' '), ',', ' '), '(', ' '), ')', ' '), '-', ' '), '+', ' '), '…', ' '), ';', ' '),
+  '. ', ' '), '?', ' '), '!', ' '),
+  ' OF ', ' '), ' THE ', ' '), ' BRANCH ', ' '), ' INTO ', ' '), ' AND ', ' '), ' FOR ', ' '), ' WITH ', ' '),
+  ' PULL ', ' '), ' WE ', ' '), ' HAVE ', ' '), ' A ', ' '), ' MORE ', ' '), ' TO ', ' '), ' PRO ', ' '), ' ON ', ' '),
+  ' AN ', ' '), ' IT ', ' '), ' SOME ', ' '), ' SIMPLE ', ' '), ' EASY ', ' '), ' FROM ', ' '), ' OUT ', ' '),
+  ' IN ', ' '), ' IS ', ' '), ' OR ', ' '), ' THERE ', ' '), ' THEIR ', ' '),
+  '   ', ' '), '  ', ' '), ' ', '_')
+
+  , '_')
+  ) AS WordsByAuthor
 ```
 
-```{r fig.width=10, fig.height=5}
+```{r commit-message-by-most-used-words-author, fig.width=10, fig.height=5, warning=FALSE}
 # # Load data
-data <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-Author-schwartz.txt"))
+data1 <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-Author-sippach.txt"))
+data2 <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-Author-schwartz.txt"))
 
 # # Filter data
-data <- tm_map(data, stripWhitespace)
-data <- tm_map(data, tolower)
-data <- tm_map(data, removeWords, stopwords("english"))
+data1 <- tm_map(data, stripWhitespace)
+data1 <- tm_map(data, tolower)
+data1 <- tm_map(data, removeWords, stopwords("english"))
+data2 <- tm_map(data, stripWhitespace)
+data2 <- tm_map(data, tolower)
+data2 <- tm_map(data, removeWords, stopwords("english"))
 
 # # Display word cloud
+
+par(mfrow=c(1, 2), oma=c(0,0,2,0))
+wordcloud(data1, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
 wordcloud(data, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
+title("Commit message by most used words by Falk Sippach (left) and Alexander Schwartz (right)", outer=TRUE)
+
 ```

@@ -24,6 +24,7 @@ Git-Repository Analysis
     -   [Most used Words](#most-used-words)
         -   [Word Cloud of Repository](#word-cloud-of-repository)
         -   [Word Cloud of Repository by File Type](#word-cloud-of-repository-by-file-type)
+        -   [Word Cloud of Repository by Author](#word-cloud-of-repository-by-author)
 
 Introduction
 ------------
@@ -99,7 +100,7 @@ Setup
 Analysis
 --------
 
-Git kodiert verschiedene Modifikationen von Dateien als Buchstaben. Unten sieht man eine Auflistung aller möglichen Werte mit ihrer jeweiligen bedeutung.
+Git kodiert verschiedene Modifikationstypen von Änderungen an Dateien als Buchstaben. Hier sieht man eine Auflistung aller möglichen Werte mit ihrer jeweiligen Bedeutung.
 
 -   A → Added
 -   C → Copied
@@ -114,6 +115,8 @@ Git kodiert verschiedene Modifikationen von Dateien als Buchstaben. Unten sieht 
 ### Changes in Repository
 
 #### Change Count by Modification Kind
+
+Zuerst wollen wir uns einen allgemeinen Überblick über das Repository verschaffen. Dafür schauen wir uns das Vorkommen aller Änderung im Verhältnis zu einander an.
 
 ``` java
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
@@ -138,7 +141,11 @@ pie(slices, labels=labels, col=colors, main="Change Count by Modification Kind")
 
 ![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/change-count-by-modification-kind-1.png)
 
+Man sieht, dass das Repository hauptsächlich modifiziert (M) wurde und auch viel (wahrscheinlich am Anfang) zum Repository dazu kam (A). Das Repository hat aber nur sehr wenige gelöschte () oder kopierte Elemente erlebt. Das deutet darauf hin, dass nicht viel copy-pasted wurde und es auch nicht an einer bestimmten Stelle im Projekte zu einem kompletten Neubau von Applikationsteilen kam, bei dem man viel Code weg geworfen hat. Somit könnte man das geringe vorkommen von D und C als Qualitätsmerkmale interpretieren.
+
 #### Change Count by Modification Kind and Authors
+
+Um noch etwas mehr Informationen aus den Änderungstypen zu ziehen, können wir uns anschauen, welche Personen für welche Änderungstypen hauptsächlich verantwortlich sind.
 
 ``` java
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
@@ -162,16 +169,15 @@ colors <- brewer.pal(max(as.numeric(csv$ModificationKind)), palette)
 mosaicplot(subset, col=colors, las=3, ylab="ModificationKind", main="Change Count by Modification Kind and Authors", cex.axis=0.8, mar=c(0,0,0,0), pop=FALSE)
 ```
 
-    ## Warning: In mosaicplot.default(subset, col = colors, las = 3, ylab = "ModificationKind", 
-    ##     main = "Change Count by Modification Kind and Authors", cex.axis = 0.8, 
-    ##     mar = c(0, 0, 0, 0), pop = FALSE) :
-    ##  extra argument 'pop' will be disregarded
-
 ![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/change-count-by-modification-kind-and-author-1.png)
+
+Man kann erkennen, dass Dirk Mahler hauptsächlich Dateien hinzugefügt hat und kaum welche verändert hat, wohingegen z.B. Christopher Dutz sehr viel modifiziert hat. Das lässt darauf schließen, dass Dirk Mahler ggf. für das Hinzufügen von Applikationsteilen verantwortlich war, aber nicht an der Maintenance beteiligt ist. Außerdem fällt auch auf, dass der Entwickler mit der Kennung annam002 für viel refactoring verantwortlich ist, da er einen großen Anteil an Renames (R) und Modifikationen (M) hat.
 
 ### Changes by Time
 
 #### Change Count by Month
+
+Um aus den Änderungstypen noch mehr Informationen für das Repository schließen zu können, kann man diese in zeitliche Relation setzen und erfährt dadurch noch deutlich mehr über das Projekt. Man bekommt quasi ein "Profil".
 
 ``` java
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
@@ -211,7 +217,11 @@ legend(xrange[1], yrange[2], unique(csv$ModificationKind), cex=0.8, col=colors, 
 
 ![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/change-count-by-month-1.png)
 
+Man kann erkennen, dass das Projekt im Mai 2015 sehr klein angefangen hat. Es gab kaum Änderungen in Relation zu späteren Phasen im Projekt. Für fast ein halbes Jahr wurde es scheinbar kaum angefasst, bis es dann im Sep/Okt 2015 zu einer unglaublich großen Menge an M's und A's kam. Wahrscheinlich vor einem großen Release. Die D's sind sehr gering geblieben, was auf eine gesunde Weiterentwicklung hindeutet, statt auf einen Rewrite von Code. In der Geschichte des Projekten, lassen sich immer wieder solche Sprünge feststellen mit teilweise viel Zeit zwischen den großen Entwicklugnsphasen. Da das betrachtete Repository ein Eventplaner für Conventions ist, liegt es nahe, dass immer vor größeren Veranstaltungen viel in die Applikation investiert wird.
+
 #### Change Count by Month and Authors
+
+Es ist auch interessant zu betrachten, wie diese zeitliche Entwicklung auf die Entwickler verteilt. Dafür betrachten wir den Haupt-Entwickler in dem Projekt.
 
 ``` java
 MATCH  (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
@@ -253,9 +263,13 @@ legend(xrange[1], yrange[2], c("A", "C", "D", "M", "R"), cex=0.8, col=colors, lt
 
 ![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/change-counts-of-falk-sippach-1.png)
 
+Man sieht, dass Falk Sippach vor allem in der o.g. großen Änderungswelle im Sep/Okt 2015 viel mitgewirkt hat. Sogar fast komplett alleine. Darauf hin hat er sich nach dem Jan 2016 größtenteils aus dem Projekt zurückgezogen. Da die Änderungen in der vorher betrachteten Grafik in der Zeit nicht aufhören, sieht man auch, dass andere Entwickler in der Zeit fleisig weiterentwickelt haben.
+
 ### Changes by File Type
 
 #### Change Count by File Type
+
+Zur einem Profil gehört es auch zu betrachten in welchen Dateitypen die meisten Änderungen einfließen.
 
 ``` java
 MATCH (change:Change)-[MODIFIES]->(file:File)
@@ -284,7 +298,11 @@ ggplot(csv, aes(x=reorder(FileType, ChangeCount), y=ChangeCount)) +
 
 ![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/change-count-by-file-type-1.png)
 
+In diesem Projekt sind es hauptsächlich Java, Groovy (eine alternative JVM-Sprache) und XML, wobei groovy doppelt so oft geändert wurde wie java und java doppelt so oft geändert wurde wie XML. HTML kommt, obwohl es eine Web-Applikation ist, kaum vor. Das deutet darauf hin, dass andere Methoden benutzt werden, um die Oberflächen zu modellieren.
+
 #### Change Count by File Type and Authors
+
+Zuletzt kann man sich in dieser Hinsicht auch z.B. angucken wie oft die Dateitypen von verschiedenen Autoren verändert wurden.
 
 ``` java
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
@@ -330,13 +348,15 @@ grid.arrange(plot1, plot2, nrow=2)
 
 ![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/change-counts-of-author-by-file-type-1.png)
 
+Man kann erkennen, dass beide Autoren sich hauptsächlich auf Java und Groovy konzentrieren. Die Grafiken lassen vermuten, dass Falk Sippach eher ein Groovy-Experte ist und Alexander Schwartz eher ein Java-Experte. Allerdings fehlt hier die Normalisierung bzw. Relativierung, um genaue Aussagen über ihre Rollen im Projekt treffen zu können. Mehr dazu im nächsten Kapitel.
+
 ### Ownership of Repository
 
-Anhand der Change Counts der Autoren kann man diesen ein relatives Maß des Besitzes eines Teils des Repositories zuschreiben. Dadurch lassen sich bestimmte Domänen herauskristalliesieren, die bestimmten Entwicklern gehören.
+Anhand der Change Counts der Autoren kann man diesen auch ein relatives Maß des Besitzes eines Teils des Repositories zuschreiben. Dadurch lassen sich bestimmte Domänen herauskristalliesieren, die bestimmten Entwicklern gehören.
 
 #### Ownership of Repository by File Types and Authors
 
-Beispielsweise kann man die Dateitypen betrachten und ihre jeweilige Zugehörigkeit zu einem bestimmten Autor.
+Beispielsweise kann man die Dateitypen betrachten und ihre jeweilige Zugehörigkeit zu einem bestimmten Autor. Das haben wir vorher schon gemacht, aber ohne eine Normalisierung wie hier war das Maß nicht allzu aussagekräftig.
 
 ``` java
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
@@ -378,9 +398,7 @@ plot2 <- ggplot(data.frame(proportion2), aes(x=Var1, y=Freq)) +
 grid.arrange(plot1, plot2, nrow=2)
 ```
 
-![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/ownership-of-repository-of-author-by-file-types-1.png)
-
-Anhand der beiden Grafiken kann man erkennen, dass Alexander Schwartz in dem Repository maßgeblich für die Erstellung von Shell-Skripten und JBoss-Dateien verantwortlich ist. Daraus lässt sich schließen, dass er im Gegensatz zu Falk Sippach, der für einen Großteil der Logik und Features in Form von Groovy- und Java-Klassen verantwortlich ist, wahrscheinlich viel mit Build-Management und der Konfiguration beschäftigt ist.
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/ownership-of-repository-of-author-by-file-types-1.png) Man sieht, dass obwohl wir vorher gesehen hatten, dass Alexander Schwartz mehr an Java als an Groovy gearbeitet hat, er im Vergleich zu Falk Sippach relativ gesehen doch weniger zum Java-Anteil des Projekts beigesteuert hat als vorher zu vermuten war. Anhand der beiden Grafiken kann man erkennen, dass Alexander Schwartz in dem Repository maßgeblich für die Erstellung von Shell-Skripten und JBoss-Dateien verantwortlich ist. Daraus lässt sich schließen, dass er im Gegensatz zu Falk Sippach, der für einen Großteil der Logik und Features in Form von Groovy- und Java-Klassen verantwortlich ist, wahrscheinlich viel mit Build-Management und der Konfiguration beschäftigt ist.
 
 #### Ownership of Repository by Packages
 
@@ -555,7 +573,9 @@ data <- tm_map(data, tolower)
 data <- tm_map(data, removeWords, stopwords("english"))
 
 # # Display word cloud
-wordcloud(data, scale=c(5,0.5), max.words=75, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
+par(mfrow=c(1, 1), oma=c(0,0,2,0))
+wordcloud(data, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
+title("Commit message by most used words", outer=TRUE)
 ```
 
 ![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/commit-massage-by-most-used-words-1.png)
@@ -597,54 +617,76 @@ RETURN
 
 ``` r
 # # Load data
-data <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-File-Type-java.txt"))
+data1 <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-File-Type-java.txt"))
+data2 <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-File-Type-xml.txt"))
 
 # # Filter data
-data <- tm_map(data, stripWhitespace)
-data <- tm_map(data, tolower)
-data <- tm_map(data, removeWords, stopwords("english"))
+data1 <- tm_map(data, stripWhitespace)
+data1 <- tm_map(data, tolower)
+data1 <- tm_map(data, removeWords, stopwords("english"))
+data2 <- tm_map(data, stripWhitespace)
+data2 <- tm_map(data, tolower)
+data2 <- tm_map(data, removeWords, stopwords("english"))
 
 # # Display word cloud
-wordcloud(data, scale=c(5,0.5), max.words=100, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
+par(mfrow=c(1, 2), oma=c(0,0,2,0))
+wordcloud(data1, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
+wordcloud(data2, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
+title("Commit message by most used words by file type java (left) and xml (right)", outer=TRUE)
 ```
 
-![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/commit-message-by-most-used-words-java-1.png)
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/commit-message-by-most-used-words-file-type-1.png)
+
+#### Word Cloud of Repository by Author
+
+``` cypher
+MATCH (author:Author)-[COMMITED]->(commit:Commit)
+WITH collect(commit) AS Commits, author.name AS Author
+RETURN
+  Author,
+  collect(DISTINCT
+  split(
+
+  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
+  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
+  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
+  replace(
+
+  toUpper(
+  reduce(words = '', aCommit IN Commits | words + aCommit.message)
+  ),
+
+  '"', ' '), "'", ' '), '#', ' '), ',', ' '), '(', ' '), ')', ' '), '-', ' '), '+', ' '), '…', ' '), ';', ' '),
+  '. ', ' '), '?', ' '), '!', ' '),
+  ' OF ', ' '), ' THE ', ' '), ' BRANCH ', ' '), ' INTO ', ' '), ' AND ', ' '), ' FOR ', ' '), ' WITH ', ' '),
+  ' PULL ', ' '), ' WE ', ' '), ' HAVE ', ' '), ' A ', ' '), ' MORE ', ' '), ' TO ', ' '), ' PRO ', ' '), ' ON ', ' '),
+  ' AN ', ' '), ' IT ', ' '), ' SOME ', ' '), ' SIMPLE ', ' '), ' EASY ', ' '), ' FROM ', ' '), ' OUT ', ' '),
+  ' IN ', ' '), ' IS ', ' '), ' OR ', ' '), ' THERE ', ' '), ' THEIR ', ' '),
+  '   ', ' '), '  ', ' '), ' ', '_')
+
+  , '_')
+  ) AS WordsByAuthor
+```
 
 ``` r
 # # Load data
-data <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-Author-sippach.txt"))
+data1 <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-Author-sippach.txt"))
+data2 <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-Author-schwartz.txt"))
 
 # # Filter data
-data <- tm_map(data, stripWhitespace)
-data <- tm_map(data, tolower)
-data <- tm_map(data, removeWords, stopwords("english"))
+data1 <- tm_map(data, stripWhitespace)
+data1 <- tm_map(data, tolower)
+data1 <- tm_map(data, removeWords, stopwords("english"))
+data2 <- tm_map(data, stripWhitespace)
+data2 <- tm_map(data, tolower)
+data2 <- tm_map(data, removeWords, stopwords("english"))
 
 # # Display word cloud
-wordcloud(data, scale=c(5,0.5), max.words=50, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
-```
 
-![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/commit-mesage-by-most-used-words-xml-1.png)
-
-``` r
-# # Load data
-data <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words-by-Author-schwartz.txt"))
-
-# # Filter data
-data <- tm_map(data, stripWhitespace)
-data <- tm_map(data, tolower)
-data <- tm_map(data, removeWords, stopwords("english"))
-
-# # Display word cloud
+par(mfrow=c(1, 2), oma=c(0,0,2,0))
+wordcloud(data1, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
 wordcloud(data, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
+title("Commit message by most used words by Falk Sippach (left) and Alexander Schwartz (right)", outer=TRUE)
 ```
 
-    ## Warning in wordcloud(data, scale = c(5, 0.5), max.words = 100, min.freq =
-    ## 2, : upstream could not be fit on page. It will not be plotted.
-
-    ## Warning in wordcloud(data, scale = c(5, 0.5), max.words = 100, min.freq =
-    ## 2, : workshop could not be fit on page. It will not be plotted.
-
-    ## Warning in wordcloud(data, scale = c(5, 0.5), max.words = 100, min.freq =
-    ## 2, : wrapper could not be fit on page. It will not be plotted.
-
-![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-16-1.png)
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/commit-message-by-most-used-words-author-1.png)
