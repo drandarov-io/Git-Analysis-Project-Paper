@@ -530,7 +530,7 @@ In dem Projekt sieht man z.B, dass die StartPage.java Klasse unglaublich oft ge�
 
 ### Most used Words
 
-Ein zwar nicht allzu genaues, aber insteressantes Maß sind die Vorkommen der Wörter in den Commit-Messages.
+Ein zwar nicht allzu genaues, aber interessantes Maß sind die Vorkommen der Wörter in den Commit-Messages.
 
 #### Word Cloud of Repository
 Für das gesamte Repository sehen die Commit-Messages folgendermaßen aus:
@@ -578,7 +578,7 @@ wordcloud(data, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, r
 title("Commit message by most used words", outer=TRUE)
 ```
 
-xxxxxxxxxxxxx
+Man sieht, dass hauptsächlich die Wörter "added", "merge" und "dukecon" (der Name des Repositories) vorkommen. Das ist normal für ein Projekt allgemein und die Vorkommen von "merge" deuten lediglich auf die Integrierung vieler Open-Source-Kontributionen hin. "Fix" und "Fixed" kommt zwar öfter vor, ist aber nicht auffällig häufig.
 
 
 #### Word Cloud of Repository by File Type
@@ -633,8 +633,12 @@ wordcloud(data2, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, 
 title("Commit message by most used words by file type java (left) and xml (right)", outer=TRUE)
 ```
 
+TODO Lisa
+
 
 #### Word Cloud of Repository by Author
+Das gleiche lässt sich auch mit der Aufteilung nach Autoren machen.
+
 ```{cypher}
 MATCH (author:Author)-[COMMITED]->(commit:Commit)
 WITH collect(commit) AS Commits, author.name AS Author
@@ -685,3 +689,9 @@ wordcloud(data, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, r
 title("Commit message by most used words by Falk Sippach (left) and Alexander Schwartz (right)", outer=TRUE)
 
 ```
+
+TODO Lisa
+
+## Fazit
+
+TODO Lisa
