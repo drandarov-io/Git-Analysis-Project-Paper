@@ -332,7 +332,11 @@ grid.arrange(plot1, plot2, nrow=2)
 
 ### Ownership of Repository
 
+Anhand der Change Counts der Autoren kann man diesen ein relatives Maß des Besitzes eines Teils des Repositories zuschreiben. Dadurch lassen sich bestimmte Domänen herauskristalliesieren, die bestimmten Entwicklern gehören.
+
 #### Ownership of Repository by File Types and Authors
+
+Beispielsweise kann man die Dateitypen betrachten und ihre jeweilige Zugehörigkeit zu einem bestimmten Autor.
 
 ``` java
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
@@ -376,7 +380,11 @@ grid.arrange(plot1, plot2, nrow=2)
 
 ![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/ownership-of-repository-of-author-by-file-types-1.png)
 
+Anhand der beiden Grafiken kann man erkennen, dass Alexander Schwartz in dem Repository maßgeblich für die Erstellung von Shell-Skripten und JBoss-Dateien verantwortlich ist. Daraus lässt sich schließen, dass er im Gegensatz zu Falk Sippach, der für einen Großteil der Logik und Features in Form von Groovy- und Java-Klassen verantwortlich ist, wahrscheinlich viel mit Build-Management und der Konfiguration beschäftigt ist.
+
 #### Ownership of Repository by Packages
+
+Das gleiche Prinzip lässt sich auch auf die Ordnerstrukturen im Projekt anwenden.
 
 ``` java
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
@@ -436,7 +444,11 @@ ggplot(data, aes(x=reorder(Path, Pct), y=Pct, fill=Author)) +
 
 ![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/ownership-of-authors-by-most-relevant-packages-1.png)
 
+Anhand der Grafik lassen sich relativ klare "Experten" für bestimmte Domänen im Projekt identifizieren. So war Falk Sippach fast 50% an der Implementierung beteiligt und fast 70% an .../dukecon/model. Alexander Schwartz hingegen mit einem großen Teil an .../dukecon/server/gui. Wenn also neue Entwickler ins Projekt kommen, oder anderweitig Probleme im Code entstehen, weiß man an wen man sich am ehesten wenden muss.
+
 #### Ownership of Repository by Files
+
+Zuletzt gilt das Prinzip auch für bestimmte Dateien. Es gibt oft in Projekten bestimmte Kern-Dateien, die oft geändert werden und die essentiell für das Projekt sind. Klassischerweise gehören dazu Elemente, wie die Front-Page, Start-Klassen, große Konfigurationsdateien, etc.
 
 ``` java
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
@@ -495,9 +507,15 @@ ggplot(data, aes(x=FilePath, y=Pct, fill=Author)) +
 
 ![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/ownership-of-authors-by-most-relevant-files-1.png)
 
+In dem Projekt sieht man z.B, dass die StartPage.java Klasse unglaublich oft geändert wird, aber 70% der Änderungen von Alexander Schwartz kommen. Noch extremer ist es bei JavalandDataExtractorSpec.groovy und Falk Sippach mit 100%. Falls diese Person nun aus dem Projekt austritt besteht das Risiko, dass niemand mehr sich mit der Klasse auskennt und es zu ernsthaften Krisen im Projekt kommt.
+
 ### Most used Words
 
+Ein zwar nicht allzu genaues, aber insteressantes Maß sind die Vorkommen der Wörter in den Commit-Messages.
+
 #### Word Cloud of Repository
+
+Für das gesamte Repository sehen die Commit-Messages folgendermaßen aus:
 
 ``` cypher
 MATCH (commit:Commit)
@@ -540,9 +558,13 @@ data <- tm_map(data, removeWords, stopwords("english"))
 wordcloud(data, scale=c(5,0.5), max.words=75, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
 ```
 
-![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-12-1.png)
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/commit-massage-by-most-used-words-1.png)
+
+xxxxxxxxxxxxx
 
 #### Word Cloud of Repository by File Type
+
+Wenn man sich die konkreten Dateitypen anguckt, lassen sich vielleicht sogar Muster erkennen, wie, dass besonders oft "fix" oder "add" vorkommt. Also gegebenenfalls Schlagwörter, die auf problematische Dateitypen hinweisen.
 
 ``` cypher
 MATCH (commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
@@ -586,7 +608,7 @@ data <- tm_map(data, removeWords, stopwords("english"))
 wordcloud(data, scale=c(5,0.5), max.words=100, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
 ```
 
-![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-14-1.png)
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/commit-message-by-most-used-words-java-1.png)
 
 ``` r
 # # Load data
@@ -601,7 +623,7 @@ data <- tm_map(data, removeWords, stopwords("english"))
 wordcloud(data, scale=c(5,0.5), max.words=50, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
 ```
 
-![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-15-1.png)
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/commit-mesage-by-most-used-words-xml-1.png)
 
 ``` r
 # # Load data
