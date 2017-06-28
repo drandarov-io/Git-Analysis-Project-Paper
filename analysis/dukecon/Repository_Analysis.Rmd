@@ -115,7 +115,7 @@ maxFiles <- 25      # number of most changed files
 getPalette <- colorRampPalette(brewer.pal(7, palette))
 ```
 
-Git kodiert verschiedene Modifikationen von Dateien als Buchstaben. Unten sieht man eine Auflistung aller möglichen Werte mit ihrer jeweiligen bedeutung.
+Git kodiert verschiedene Modifikationstypen von Änderungen an Dateien als Buchstaben. Hier sieht man eine Auflistung aller möglichen Werte mit ihrer jeweiligen Bedeutung.
 
 - A → Added
 - C → Copied
@@ -132,6 +132,8 @@ Git kodiert verschiedene Modifikationen von Dateien als Buchstaben. Unten sieht 
 ### Changes in Repository
 
 #### Change Count by Modification Kind
+Zuerst wollen wir uns einen allgemeinen Überblick über das Repository verschaffen. Dafür schauen wir uns das Vorkommen aller Änderung im Verhältnis zu einander an.
+
 ```{java}
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
 RETURN change.modificationKind AS ModificationKind, count(change.modificationKind) AS ChangeCount
@@ -153,8 +155,12 @@ colors <- brewer.pal(max(as.numeric(csv$ModificationKind)), palette)
 pie(slices, labels=labels, col=colors, main="Change Count by Modification Kind")
 ```
 
+Man sieht, dass das Repository hauptsächlich modifiziert (M) wurde und auch viel (wahrscheinlich am Anfang) zum Repository dazu kam (A). Das Repository hat aber nur sehr wenige gelöschte () oder kopierte Elemente erlebt. Das deutet darauf hin, dass nicht viel copy-pasted wurde und es auch nicht an einer bestimmten Stelle im Projekte zu einem kompletten Neubau von Applikationsteilen kam, bei dem man viel Code weg geworfen hat. Somit könnte man das geringe vorkommen von D und C als Qualitätsmerkmale interpretieren.
+
 
 #### Change Count by Modification Kind and Authors
+Um noch etwas mehr Informationen aus den Änderungstypen zu ziehen, können wir uns anschauen, welche Personen für welche Änderungstypen hauptsächlich verantwortlich sind.
+
 ```{java}
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
 RETURN author.name AS Author, change.modificationKind AS ModificationKind
@@ -177,11 +183,14 @@ colors <- brewer.pal(max(as.numeric(csv$ModificationKind)), palette)
 mosaicplot(subset, col=colors, las=3, ylab="ModificationKind", main="Change Count by Modification Kind and Authors", cex.axis=0.8, mar=c(0,0,0,0), pop=FALSE)
 ```
 
+Man kann erkennen, dass Dirk Mahler hauptsächlich Dateien hinzugefügt hat und kaum welche verändert hat, wohingegen z.B. Christopher Dutz sehr viel modifiziert hat. Das lässt darauf schließen, dass Dirk Mahler ggf. für das Hinzufügen von Applikationsteilen verantwortlich war, aber nicht an der Maintenance beteiligt ist. Außerdem fällt auch auf, dass der Entwickler mit der Kennung annam002 für viel refactoring verantwortlich ist, da er einen großen Anteil an Renames (R) und Modifikationen (M) hat.
 
 
 ### Changes by Time
 
 #### Change Count by Month
+Um aus den Änderungstypen noch mehr Informationen für das Repository schließen zu können, kann man diese in zeitliche Relation setzen und erfährt dadurch noch deutlich mehr über das Projekt. Man bekommt quasi ein "Profil".
+
 ```{java}
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
 RETURN split(commit.date,'-')[0]+'-'+split(commit.date,'-')[1] AS CommitDate, change.modificationKind AS ModificationKind, count(change) AS ChangeCount
@@ -218,8 +227,13 @@ for (i in 1:max(numModificationKind)) {
 legend(xrange[1], yrange[2], unique(csv$ModificationKind), cex=0.8, col=colors, lty=1, title="ModKind")
 ```
 
+Man kann erkennen, dass das Projekt im Mai 2015 sehr klein angefangen hat. Es gab kaum Änderungen in Relation zu späteren Phasen im Projekt. Für fast ein halbes Jahr wurde es scheinbar kaum angefasst, bis es dann im Sep/Okt 2015 zu einer unglaublich großen Menge an M's und A's kam. Wahrscheinlich vor einem großen Release. Die D's sind sehr gering geblieben, was auf eine gesunde Weiterentwicklung hindeutet, statt auf einen Rewrite von Code.
+In der Geschichte des Projekten, lassen sich immer wieder solche Sprünge feststellen mit teilweise viel Zeit zwischen den großen Entwicklugnsphasen. Da das betrachtete Repository ein Eventplaner für Conventions ist, liegt es nahe, dass immer vor größeren Veranstaltungen viel in die Applikation investiert wird.
+
 
 #### Change Count by Month and Authors
+Es ist auch interessant zu betrachten, wie diese zeitliche Entwicklung auf die Entwickler verteilt. Dafür betrachten wir den Haupt-Entwickler in dem Projekt.
+
 ```{java}
 MATCH  (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
 RETURN author.name AS Author, split(commit.date,'-')[0]+'-'+split(commit.date,'-')[1] AS CommitDate, change.modificationKind AS ModificationKind, count(change) AS ChangeCount
@@ -258,11 +272,14 @@ for (i in 1:max(numModificationKind)) {
 legend(xrange[1], yrange[2], c("A", "C", "D", "M", "R"), cex=0.8, col=colors, lty=1, title="ModKind")
 ```
 
+Man sieht, dass Falk Sippach vor allem in der o.g. großen Änderungswelle im Sep/Okt 2015 viel mitgewirkt hat. Sogar fast komplett alleine. Darauf hin hat er sich nach dem Jan 2016 größtenteils aus dem Projekt zurückgezogen. Da die Änderungen in der vorher betrachteten Grafik in der Zeit nicht aufhören, sieht man auch, dass andere Entwickler in der Zeit fleisig weiterentwickelt haben.
 
 
 ### Changes by File Type
 
 #### Change Count by File Type
+Zur einem Profil gehört es auch zu betrachten in welchen Dateitypen die meisten Änderungen einfließen.
+
 ```{java}
 MATCH (change:Change)-[MODIFIES]->(file:File)
 WITH split(file.relativePath, '.')[1] AS FileType, change
@@ -287,6 +304,8 @@ ggplot(csv, aes(x=reorder(FileType, ChangeCount), y=ChangeCount)) +
   scale_y_continuous(limits=c(0, 1050), expand=c(0, 0)) +
   labs(x="FileType", title="Change Count by File Type")
 ```
+
+In diesem Projekt sind es hauptsächlich Java, Groovy (eine alternative JVM-Sprache) und XL, wobei groovy doppelt so oft geändert wurde wie java und java doppelt so oft geändert wurde wie xml. HTML kommt, obwohl es eine Web-Applikation ist, kaum vor. 
 
 
 #### Change Count by File Type and Authors
