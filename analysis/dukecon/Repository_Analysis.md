@@ -493,7 +493,7 @@ ggplot(data, aes(x=FilePath, y=Pct, fill=Author)) +
   labs(x="", y="Ownership in %", title="Ownership of Authors by most relevant Files")
 ```
 
-![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-11-1.png)
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/ownership-of-authors-by-most-relevant-files-1.png)
 
 ### Most used Words
 
@@ -540,7 +540,7 @@ data <- tm_map(data, removeWords, stopwords("english"))
 wordcloud(data, scale=c(5,0.5), max.words=75, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
 ```
 
-![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-13-1.png)
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-12-1.png)
 
 #### Word Cloud of Repository by File Type
 
@@ -586,7 +586,7 @@ data <- tm_map(data, removeWords, stopwords("english"))
 wordcloud(data, scale=c(5,0.5), max.words=75, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
 ```
 
-![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-15-1.png)
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-14-1.png)
 
 ``` r
 # # Load data
@@ -601,4 +601,4 @@ data <- tm_map(data, removeWords, stopwords("english"))
 wordcloud(data, scale=c(5,0.5), max.words=75, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
 ```
 
-![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-16-1.png)
+![](Repository_Analysis_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-15-1.png)

@@ -457,7 +457,7 @@ RETURN Author, count(change) AS ChangeCount, FilePath
 UNION ...
 ```
 
-```{r fig.width=10, fig.height=15}
+```{r ownership-of-authors-by-most-relevant-files, fig.width=10, fig.height=15}
 # # Load data
 data <- read.table(file.path("../../result/dukecon/starred/Change-Count-by-Author-by-File.csv"), sep=",", header=TRUE)
 
