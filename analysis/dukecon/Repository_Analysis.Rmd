@@ -305,10 +305,12 @@ ggplot(csv, aes(x=reorder(FileType, ChangeCount), y=ChangeCount)) +
   labs(x="FileType", title="Change Count by File Type")
 ```
 
-In diesem Projekt sind es hauptsächlich Java, Groovy (eine alternative JVM-Sprache) und XL, wobei groovy doppelt so oft geändert wurde wie java und java doppelt so oft geändert wurde wie xml. HTML kommt, obwohl es eine Web-Applikation ist, kaum vor. 
+In diesem Projekt sind es hauptsächlich Java, Groovy (eine alternative JVM-Sprache) und XML, wobei groovy doppelt so oft geändert wurde wie java und java doppelt so oft geändert wurde wie XML. HTML kommt, obwohl es eine Web-Applikation ist, kaum vor. Das deutet darauf hin, dass andere Methoden benutzt werden, um die Oberflächen zu modellieren.
 
 
 #### Change Count by File Type and Authors
+Zuletzt kann man sich in dieser Hinsicht auch z.B. angucken wie oft die Dateitypen von verschiedenen Autoren verändert wurden. 
+
 ```{java}
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
 WITH change.modificationKind AS ModificationKind, author.name AS Author, split(file.relativePath, '.')[1] AS FileType
@@ -351,13 +353,14 @@ plot2 <- ggplot(subset2, aes(x=factor(FileType))) +
 grid.arrange(plot1, plot2, nrow=2)
 ```
 
+Man kann erkennen, dass beide Autoren sich hauptsächlich auf Java und Groovy konzentrieren. Die Grafiken lassen vermuten, dass Falk Sippach eher ein Groovy-Experte ist und Alexander Schwartz eher ein Java-Experte. Allerdings fehlt hier die Normalisierung bzw. Relativierung, um genaue Aussagen über ihre Rollen im Projekt treffen zu können. Mehr dazu im nächsten Kapitel. 
 
 
 ### Ownership of Repository
-Anhand der Change Counts der Autoren kann man diesen ein relatives Maß des Besitzes eines Teils des Repositories zuschreiben. Dadurch lassen sich bestimmte Domänen herauskristalliesieren, die bestimmten Entwicklern gehören.
+Anhand der Change Counts der Autoren kann man diesen auch ein relatives Maß des Besitzes eines Teils des Repositories zuschreiben. Dadurch lassen sich bestimmte Domänen herauskristalliesieren, die bestimmten Entwicklern gehören.
 
 #### Ownership of Repository by File Types and Authors
-Beispielsweise kann man die Dateitypen betrachten und ihre jeweilige Zugehörigkeit zu einem bestimmten Autor.
+Beispielsweise kann man die Dateitypen betrachten und ihre jeweilige Zugehörigkeit zu einem bestimmten Autor. Das haben wir vorher schon gemacht, aber ohne eine Normalisierung wie hier war das Maß nicht allzu aussagekräftig.
 
 ```{java}
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
@@ -398,7 +401,7 @@ plot2 <- ggplot(data.frame(proportion2), aes(x=Var1, y=Freq)) +
 
 grid.arrange(plot1, plot2, nrow=2)
 ```
-
+Man sieht, dass obwohl wir vorher gesehen hatten, dass Alexander Schwartz mehr an Java als an Groovy gearbeitet hat, er im Vergleich zu Falk Sippach relativ gesehen doch weniger zum Java-Anteil des Projekts beigesteuert hat als vorher zu vermuten war.
 Anhand der beiden Grafiken kann man erkennen, dass Alexander Schwartz in dem Repository maßgeblich für die Erstellung von Shell-Skripten und JBoss-Dateien verantwortlich ist. Daraus lässt sich schließen, dass er im Gegensatz zu Falk Sippach, der für einen Großteil der Logik und Features in Form von Groovy- und Java-Klassen verantwortlich ist, wahrscheinlich viel mit Build-Management und der Konfiguration beschäftigt ist.
 
 
