@@ -28,7 +28,7 @@ Git-Repository Analysis
         -   [Word Cloud of Repository](#word-cloud-of-repository)
         -   [Word Cloud of Repository by File Type](#word-cloud-of-repository-by-file-type)
         -   [Word Cloud of Repository by Author](#word-cloud-of-repository-by-author)
--   [Fazit](#fazit)
+-   [Conclusion](#conclusion)
 
 Introduction
 ------------
@@ -196,7 +196,7 @@ subset <- table[table(csv$Author)>percentage,]
 colors <- brewer.pal(max(as.numeric(csv$ModificationKind)), palette)
 
 # # Display plot
-mosaicplot(subset, col=colors, las=3, ylab="ModificationKind", main="Change Count by Modification Kind and Authors", cex.axis=0.8, mar=c(0,0,0,0), pop=FALSE)
+mosaicplot(subset, col=colors, las=3, ylab="ModificationKind", main="Change Count by Modification Kind and Authors", cex.axis=0.8, mar=c(0,0,0,0))
 ```
 
 ![](Repository_Analysis_files/figure-markdown_github/change-count-by-modification-kind-and-author-1.png)
@@ -468,7 +468,7 @@ Anhand der beiden Grafiken kann man darüber hinaus erkennen, dass Alexander Sch
 
 #### Ownership of Repository by Packages
 
-Das gleiche Prinzip lässt sich auch auf die Ordnerstrukturen im Projekt anwenden.
+Das gleiche Prinzip lässt sich auch auf die Ordnerstrukturen im Projekt anwenden. Für einen besseren Überblick betrachten wir nur die ersten 25 Packages des Repositories, die einen Änderungsanteil von mindestens 1% am gesamten Repositories haben.
 
 -   Cypher-Query:
 
@@ -504,12 +504,11 @@ maxFiles <- 25 # number of most changed files
 temp <- aggregate(ChangeCount ~ Path, data, sum) # sum up ChangeCount of every Author
 temp <- temp[with(temp, order(-ChangeCount)),] # sort (descending)
 temp <- temp[temp$ChangeCount >= temp$ChangeCount[order(temp$ChangeCount, decreasing=TRUE)][maxFiles],] # select top maxFiles
-data <- subset(data, Path %in% temp$Path)
+data <- subset(data, Path %in% temp$Path) # subset data based on temp
 
 # # Transform data
 # Add percentage of changes within packages
 data$Pct <- round(data$ChangeCount/with(data, ave(ChangeCount, list(Path), FUN = sum))*100, digits=2)
-
 # Select authors that changed the most in each package #
 maxChanged <- with(data, tapply(ChangeCount, Path, which.max))
 splitPath <- split(data, data$Path)
@@ -534,11 +533,11 @@ ggplot(data, aes(x=reorder(Path, Pct), y=Pct, fill=Author)) +
 
 Anhand der Grafik lassen sich relativ klare "Experten" für bestimmte Domänen im Projekt identifizieren. So war Falk Sippach fast 50% an der Implementierung beteiligt und fast 70% an ".../dukecon/model". Alexander Schwartz hat hingegen einen großen Anteil an ".../dukecon/server/gui".
 
-Wenn also neue Entwickler ins Projekt kommen oder anderweitig Probleme im Code entstehen, sind passende Ansprechpartner direkt ersichtlich. Eine verbesserte und flüssigere Zusammenarbeit am Projekt wird dadurch gewährleistet.
+Wenn also neue Entwickler ins Projekt kommen oder anderweitig Probleme im Code entstehen, sind passende Ansprechpartner direkt ersichtlich. Eine verbesserte und flüssigere Zusammenarbeit am Projekt wird dadurch gewährleistet. Diese Ansicht deckt jedoch auch mögliche Risiken auf: Wenn solche "Experten" wegfallen, könnte essenzielles Wissen über die betroffenen Packages ebenfalls verloren gehen. Bei den betrachteten Packages ist dieses Problem jedoch noch nicht allzu stark ausgeprägt.
 
 #### Ownership of Repository by Files
 
-Zuletzt gilt das Prinzip auch für bestimmte Dateien. Es gibt meistens in Projekten bestimmte Kern-Dateien, die besonders häufig geändert werden und essentiell für das Projekt sind. Klassischerweise gehören dazu Elemente wie beispielsweise die Front-Page, Start-Klassen und große Konfigurationsdateien.
+Das Prinzip gilt auch für einzelne Dateien. Es gibt meistens in Projekten bestimmte Kern-Dateien, die besonders häufig geändert werden und essenziell für das Projekt sind. Klassischerweise gehören dazu Elemente wie beispielsweise die Front-Page, Start-Klassen und große Konfigurationsdateien. Auch hier beschränken wir uns auf die ersten 25 Dateien mit höchsten Repository-Anteil.
 
 -   Cypher-Query:
 
@@ -603,7 +602,7 @@ ggplot(data, aes(x=FilePath, y=Pct, fill=Author)) +
 
 In dem Projekt sieht man z.B, dass die StartPage.java-Klasse sehr oft geändert wird und 70% der Änderungen allein von Alexander Schwartz kommen. Bei der JavalandDataExtractorSpec.groovy-Klasse ist es noch deutlicher: Hier hat Falk Sippach einen Änderungsanteil von 100%, er hat die Klasse also gänzlich alleine geschrieben und modifiziert.
 
-Falls Personen mit so hohen Anteilen aus dem Projekt austreten, besteht das Risiko, dass sich niemand anderes mit der Klasse auskennt und es zu ernsthaften Krisen im Projekt kommt. Daher ist es wichtig, dass gerade bei diesen Dateien in diesem Falle eine ordnungsgemäße Übergabe stattfindet und sich auch andere Kern-Entwickler mit diesen Klassen beschäftigen.
+Hier wird das vorhin beschriebene Risiko besonders deutlich: Falls Personen mit so hohen Anteilen aus dem Projekt austreten, besteht das Risiko, dass sich niemand anderes mit der Klasse auskennt und es zu ernsthaften Krisen im Projekt kommt. Daher ist es wichtig, dass gerade bei diesen Dateien eine ordnungsgemäße Übergabe stattfindet und sich auch andere Kern-Entwickler mit diesen Klassen beschäftigen. Idealerweise haben Kern-Entwickler Wissen über das gesamte Projekt.
 
 ### Most used Words
 
@@ -718,11 +717,8 @@ data$xml <- tm_map(data$xml, removeWords, stopwords("english"))
 
 # # Display word cloud
 par(mfrow=c(1,2), oma=c(0,0,2,0))
-
 wordcloud(data$java, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
-
 wordcloud(data$xml, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
-
 title("Commit Message by most used Words by File Type Java (left) and XML (right)", outer=TRUE)
 ```
 
@@ -778,6 +774,7 @@ data$schwartz <- Corpus(DirSource(directory="../../result/dukecon/starred/", pat
 data$sippach <- tm_map(data$sippach, stripWhitespace)
 data$sippach <- tm_map(data$sippach, tolower)
 data$sippach <- tm_map(data$sippach, removeWords, stopwords("english"))
+
 data$schwartz <- tm_map(data$schwartz, stripWhitespace)
 data$schwartz <- tm_map(data$schwartz, tolower)
 data$schwartz <- tm_map(data$schwartz, removeWords, stopwords("english"))
@@ -797,7 +794,11 @@ Alexander Schwartz hingegen konzentriert sich offenbar auf die Weiterentwicklung
 
 Die Tätigkeitenfelder der beiden Entwickler unterscheiden sich stark voneinander. Der Vergleich der Wordclouds und der vorher gezeigten Grafik über den Besitz bestimmter Dateien bestätigt das: Alexander Schwartz hat einen Besitz von etwa 70% an der StartPage.java-Klasse. Vermutlich fallen aus diesem Grund die Wörter "firefox" und "gui" besonders häufig.
 
-Fazit
------
+Conclusion
+----------
 
-TODO Lisa
+In dieser Arbeit haben wir einige unterschiedliche Wege genommen, um das gewählte Repository zu untersuchen. Es gibt natürlich noch weitere interessante Möglichkeiten, nützliche Informationen aus dem Repository zu gewinnen. Sie würden den Rahmen dieser Arbeit jedoch sprengen. Gerne würden wir besonders aufschlussreiche Merkmale wie beispielsweise den Anteil an Lines of Code je Entwickler oder mögliche versteckte Abhängigkeiten in Form von gemeinsam eingecheckten Dateien betrachten. Die Auswertung dieser Merkmale würde jedoch vermutlich weitere Tools erfordern oder lassen sind mithilfe von R nur schwer visualisieren. Aus diesen Gründen sind sie aus unserem Abfragenkatalog herausgefallen.
+
+Wir sind mit den gewählten Betrachtungen und den damit gewonnenen Erkenntnissen jedoch zufrieden. Es lassen sich Merkmale herausarbeiten, die auf die Qualität des Git-Repositories schließen. Besonders Punkte wie der Besitz von Packages, Dateien oder Dateitypen geben Aufschluss über die Entwicklungsschwerpunkte der Autoren, die sowohl auf Chancen als auch auf Risiken hindeuten.
+
+In diesem Projekt haben wir allgemein viel über die Thematik und über die gewählten Tools gelernt. Die gewonnenen Erkenntnisse und Methodiken bieten die Möglichkeit, in Zukunft auch andere Git-Repositories problemlos und in kurzer Zeit analysieren zu können. Wir sind mit dem gewählten Thema sehr zufrieden und freuen uns, dass wir dieses im Rahmen einer Projektarbeit ausarbeiten konnten.
