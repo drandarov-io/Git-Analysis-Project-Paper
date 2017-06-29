@@ -1,4 +1,4 @@
-Git-Repository Analysis
+Git Repository Analysis
 ================
 
 -   [Introduction](#introduction)
@@ -48,7 +48,7 @@ Introduction
 
 ### Topic
 
-In dieser Arbeit befassen wir uns mit der Analyse eines beispielhaften Git-Repositories.
+In dieser Arbeit befassen wir uns mit der Analyse eines beispielhaften Git-Repositorys.
 
 Konkret handelt es sich um ein Repository für ein Konferenz-Tool, mit dem Besuchern die Möglichkeit gegeben wird, Veranstaltungen anzusehen und sich diese vormerken zu können. Wir haben uns für dieses Repository entschieden, da es sich vom Umfang her gut für das Projekt eignet und wir die Anwendung sowie einige der beteiligten Autoren persönlich kennen.
 
@@ -410,7 +410,7 @@ Beide Autoren konzentrieren sich hauptsächlich auf Java- und Groovy-Dateien, je
 
 ### Ownership of Repository
 
-Anhand der Change Counts der Autoren kann man diesen auch ein relatives Maß am Besitz eines Teils des Repositories zuschreiben. Dadurch lassen sich Domänen herausarbeiten, die bestimmten Entwicklern "gehören".
+Anhand der Change Counts der Autoren kann man diesen auch ein relatives Maß am Besitz eines Teils des Repositorys zuschreiben. Dadurch lassen sich Domänen herausarbeiten, die bestimmten Entwicklern "gehören".
 
 #### Ownership of Repository by File Types and Authors
 
@@ -469,7 +469,7 @@ Anhand der beiden Grafiken kann man darüber hinaus erkennen, dass Alexander Sch
 
 #### Ownership of Repository by Packages
 
-Das gleiche Prinzip lässt sich auch auf die Ordnerstrukturen im Projekt anwenden. Für einen besseren Überblick betrachten wir nur die ersten 25 Packages des Repositories, die einen Änderungsanteil von mindestens 1% am gesamten Repository haben.
+Das gleiche Prinzip lässt sich auch auf die Ordnerstrukturen im Projekt anwenden. Für einen besseren Überblick betrachten wir nur die ersten 25 Packages des Repositorys, die einen Änderungsanteil von mindestens 1% am gesamten Repository haben.
 
 -   Cypher-Query:
 
@@ -611,7 +611,7 @@ Ein zwar nicht allzu genaues, aber dennoch interessantes Maß sind die Vorkommen
 
 #### Word Cloud of Repository
 
-In der folgenden Grafik lassen sich die häufigen verwendeten Wörter innerhalb der Commit-Messages des gesamten Repositories erkennen. Wir ersetzen bereis durch die Cypher-Query uninteressante Wörter wie "of" oder "for".
+In der folgenden Grafik lassen sich die häufigen verwendeten Wörter innerhalb der Commit-Messages des gesamten Repositorys erkennen. Wir ersetzen bereis durch die Cypher-Query uninteressante Wörter wie "of" oder "for".
 
 -   Cypher-Query:
 
@@ -720,7 +720,7 @@ data$xml <- tm_map(data$xml, removeWords, stopwords("english"))
 par(mfrow=c(1,2), oma=c(0,0,2,0))
 wordcloud(data$java, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
 wordcloud(data$xml, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
-title("Commit Message by most used Words by File Types Java (left) and XML (right)", outer=TRUE)
+title("Commit Message by most used Words and File Types, Java (left) and XML (right)", outer=TRUE)
 ```
 
 ![](Repository_Analysis_files/figure-markdown_github/commit-message-by-most-used-words-by-file-types-1.png)
@@ -784,7 +784,7 @@ data$schwartz <- tm_map(data$schwartz, removeWords, stopwords("english"))
 par(mfrow=c(1,2), oma=c(0,0,2,0))
 wordcloud(data$sippach, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
 wordcloud(data$schwartz, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
-title("Commit Message by most used Words by Falk Sippach (left) and Alexander Schwartz (right)", outer=TRUE)
+title("Commit Message by most used Words and Authors, Falk Sippach (left) and Alexander Schwartz (right)", outer=TRUE)
 ```
 
 ![](Repository_Analysis_files/figure-markdown_github/commit-message-by-most-used-words-by-authors-1.png)
@@ -800,6 +800,6 @@ Conclusion
 
 In dieser Arbeit haben wir einige unterschiedliche Wege genommen, um das gewählte Repository zu untersuchen. Es gibt natürlich noch weitere interessante Möglichkeiten, nützliche Informationen aus dem Repository zu gewinnen. Sie würden den Rahmen dieser Arbeit jedoch sprengen. Gerne würden wir besonders aufschlussreiche Merkmale wie beispielsweise den Anteil an Lines of Code je Entwickler oder mögliche versteckte Abhängigkeiten in Form von gemeinsam eingecheckten Dateien betrachten. Die Auswertung dieser Merkmale würde jedoch vermutlich weitere Tools erfordern oder lassen sich mithilfe von R nur schwer visualisieren. Aus diesen Gründen sind sie aus unserem Abfragenkatalog herausgefallen.
 
-Wir sind mit den gewählten Betrachtungen und den damit gewonnenen Erkenntnissen jedoch zufrieden. Es lassen sich Merkmale herausarbeiten, die auf die Qualität des Git-Repositories schließen. Besonders Punkte wie der Besitz von Packages, Dateien oder Dateitypen geben Aufschluss über die Entwicklungsschwerpunkte der Autoren, die sowohl auf Chancen als auch auf Risiken hindeuten.
+Wir sind mit den gewählten Betrachtungen und den damit gewonnenen Erkenntnissen jedoch zufrieden. Es lassen sich Merkmale herausarbeiten, die auf die Qualität des Git-Repositorys schließen. Besonders Punkte wie der Besitz von Packages, Dateien oder Dateitypen geben Aufschluss über die Entwicklungsschwerpunkte der Autoren, die sowohl auf Chancen als auch auf Risiken hindeuten.
 
 In diesem Projekt haben wir allgemein viel über die Thematik und über die gewählten Tools gelernt. Die gewonnenen Erkenntnisse und Methodiken bieten die Möglichkeit, in Zukunft auch andere Git-Repositories problemlos und in kurzer Zeit analysieren zu können. Wir sind mit dem gewählten Thema sehr zufrieden und freuen uns, dass wir dieses im Rahmen einer Projektarbeit ausarbeiten konnten.
