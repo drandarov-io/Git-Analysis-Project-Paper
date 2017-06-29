@@ -586,7 +586,7 @@ Hier wird das vorhin beschriebene Risiko besonders deutlich: Falls Personen mit 
 Ein zwar nicht allzu genaues, aber dennoch interessantes Maß sind die Vorkommen der einzelnen Wörter in den Commit-Messages. Hierzu verwenden wir Wordclouds.
 
 #### Word Cloud of Repository
-In der folgenden Grafik lassen sich die häufigen verwendeten Wörter innerhalb der Commit-Messages des gesamten Repositories erkennen. Wir ersetzen bereis durch die Cypher-Query uninteressante Wörter wie "of" oder "for" und haben erst danach die Möglichkeit entdeckt, dass diese auch mithilfe von R herausgefiltert werden können. Sicherheitshalber rufen wir diese Funktion in R noch einmal auf. Auf die Umwandlung der Wörter auf ihren Wortstamm verzichten wir, da es im Test zu falschen Umformungen gekommen ist.
+In der folgenden Grafik lassen sich die häufigen verwendeten Wörter innerhalb der Commit-Messages des gesamten Repositories erkennen. Wir ersetzen bereis durch die Cypher-Query uninteressante Wörter wie "of" oder "for".
 
 - Cypher-Query:
 ```{cypher}
@@ -637,7 +637,7 @@ Man sieht, dass hauptsächlich die Wörter "added", "merge" und "dukecon" (der N
 
 
 #### Word Cloud of Repository by File Type
-Wenn man sich die konkreten Dateitypen anguckt, lassen sich möglicherweise typische Muster erkennen. In dieser Arbeit betrachten wir in den folgenden Wordclouds nur die beiden Dateitypen Java und XML.
+Wenn man sich die konkreten Dateitypen anguckt, lassen sich möglicherweise typische Muster erkennen. Folgend betrachten wir beispielsweise die Dateitypen Java und XML.
 
 - Cypher-Query:
 ```{cypher}
@@ -692,12 +692,12 @@ wordcloud(data$xml, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALS
 title("Commit Message by most used Words by File Type Java (left) and XML (right)", outer=TRUE)
 ```
 
-Bei der Betrachtung der beiden Wordclouds erhalten wir ein unerwartetes Ergebnis: Die genutzten Wörter in den Commit-Messages der beiden Dateitypen sind überraschend ähnlich.
+Bei der Betrachtung der beiden Wordclouds erhalten wir ein Ergebnis, welches wir nicht erwartet hätten: Die genutzten Wörter in den Commit-Messages der beiden Dateitypen sind überraschend ähnlich.
 
-Bei beiden häufigen sich vor allem die Wörter "added" und "merge". Unterschiede zeichnen sich dennoch bei einigen wenigen häufigen Wörtern ab. So fällt im Kontext von Java-Dateien im Gegensatz zu XML-Dateien beispielsweise nicht die Wörter "dependency" und "plugin". Umgekehrt finden wir die Wörter "conference" und "rest" nicht unter den häufigen Wörtern bei Commit-Messages im Zusammenhang mit XML-Dateien.
+Bei beiden häufigen sich vor allem die Wörter "added" und "merge". Unterschiede zeichnen sich dennoch bei einigen wenigen häufigen Wörtern ab. So fällt im Kontext von Java-Dateien im Gegensatz zu XML-Dateien beispielsweise nicht die Wörter "dependency" und "plugin", die wahrscheinlich hauptsächlich in der pom.xml vorkommen. Umgekehrt finden wir die Wörter "conference" und "rest" nicht unter den häufigen Wörtern bei Commit-Messages im Zusammenhang mit XML-Dateien, weil sie bestimmte "Domänen" im Code beschreiben, die in XML-Dateien meist keine Rolle spielen.
 
 #### Word Cloud of Repository by Author
-Der Vergleich der Wordclouds für Dateitypen war eher unbefriedigend. Aus diesem Grund vergleichen wir in diesem Abschnitt Wordclouds der Commit-Messages aufgeteilt nach Autoren. Wie auch zuvor wählen wir die beiden Entwickler mit dem größten Änderungs-Anteil an dem Repository.
+Da der Vergleich der Wordclouds für Dateitypen eher unbefriedigend war, vergleichen wir als nächstes die Commit-Messages aufgeteilt nach Autoren. Wie auch zuvor wählen wir die beiden Entwickler mit dem größten Änderungs-Anteil an dem Repository.
 
 - Cypher-Query:
 ```{cypher}
@@ -753,7 +753,7 @@ title("Commit Message by most used Words by Falk Sippach (left) and Alexander Sc
 
 Bei dem Vergleich dieser beiden Wordclouds finden wir deutlich mehr Unterschiede. Falk Sippach beschäftigt sich zum großen Teil mit dem Ändern und Fixen des Codes, die scheinbar besonders mit der Web-Applikation selbst zu tun haben, da häufig die Wörter "added" und "fixed" sowie "dukecon" und "conference" fallen.
 
-Alexander Schwartz hingegen konzentriert sich offenbar auf die Weiterentwicklung, Tests und Merges, da häufig die Wörter "develop", "testing" und "merge" fallen. Er scheint auch einen Schwerpunkt auf Firefox und GUI zu legen.
+Alexander Schwartz hingegen konzentriert sich offenbar auf organisatorische Aufgaben im Repository, wie verschiedene Braches mergen, da häufig die Wörter "develop" und "merge" fallen.
 
 Die Tätigkeitenfelder der beiden Entwickler unterscheiden sich stark voneinander. Der Vergleich der Wordclouds und der vorher gezeigten Grafik über den Besitz bestimmter Dateien bestätigt das: Alexander Schwartz hat einen Besitz von etwa 70% an der StartPage.java-Klasse. Vermutlich fallen aus diesem Grund die Wörter "firefox" und "gui" besonders häufig.
 
