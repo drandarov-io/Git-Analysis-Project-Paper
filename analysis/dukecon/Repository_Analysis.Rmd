@@ -409,8 +409,9 @@ Beispielsweise ist es möglich, die Dateitypen und ihre jeweilige Zugehörigkeit
 ```{java}
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
 WITH change.modificationKind AS ModificationKind, author.name AS Author, split(file.relativePath, '.')[1] AS FileType
-RETURN Author, count(ModificationKind), ModificationKind, FileType
-  ORDER BY ModificationKind, count(ModificationKind) DESC, Author
+  WHERE NOT(FileType CONTAINS '/')
+RETURN Author, FileType
+  ORDER BY Author, FileType
 ```
 
 - R-Code:
@@ -618,7 +619,7 @@ RETURN
 ```
 
 - R-Code:
-```{r commit-massage-by-most-used-words, fig.width=10, fig.height=5, warning=FALSE}
+```{r commit-massage-by-most-used-words, fig.width=10, fig.height=10, warning=FALSE}
 # # Load data
 data <- Corpus(DirSource(directory="../../result/dukecon/starred/", pattern="Commit-Message-by-most-used-Words.txt"))
 
@@ -629,8 +630,8 @@ data <- tm_map(data, removeWords, stopwords("english"))
 
 # # Display word cloud
 par(mfrow=c(1, 1), oma=c(0,0,2,0))
-wordcloud(data, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
-title("Commit message by most used words", outer=TRUE)
+wordcloud(data, scale=c(10,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
+title("Commit Message by most used Words", outer=TRUE)
 ```
 
 Man sieht, dass hauptsächlich die Wörter "added", "merge" und "dukecon" (der Name des Repositories) vorkommen. Das ist im Allgemeinen normal für ein Projekt und die Vorkommen von "merge" deuten lediglich auf die Integrierung vieler Open-Source-Kontributionen hin. "Fix" und "Fixed" kommt zwar öfter vor, ist aber nicht auffällig häufig.
