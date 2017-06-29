@@ -54,7 +54,7 @@ Konkret handelt es sich um ein Repository für ein Konferenz-Tool, mit dem Besuc
 
 ### Goal
 
-Ziel ist es, einen Überblick über das Git-Repository zu erhalten und mit den gewonnenen Erkenntnissen mehr über dessen Struktur und Verlauf aussagen zu können. Beispielsweise suchen wir Indizien, die auf die Qualität des Projektes schließen und mögliche Probleme andeuten
+Ziel ist es, einen Überblick über das Git-Repository zu erhalten und mit den gewonnenen Erkenntnissen mehr über dessen Struktur und Verlauf aussagen zu können. Beispielsweise suchen wir Indizien, die auf die Qualität des Projektes schließen und mögliche Probleme andeuten.
 
 Setup
 -----
@@ -171,7 +171,7 @@ Man sieht, dass das Repository hauptsächlich modifiziert (M) wurde und auch vie
 
 Um weitere Informationen aus den Änderungstypen zu ziehen, betrachten wir, welche Personen für welche Änderungstypen hauptsächlich verantwortlich sind.
 
-Um die Visualisierung übersichtlich zu halten, werden nur die Autoren in dem Graphen berücksichtigt, die einen bestimmten Mindestanteil am gesamten Repository beigetragen haben.
+Damit die Visualisierung übersichtlich bleibt, werden nur die Autoren in dem Graphen berücksichtigt, die einen bestimmten Mindestanteil am gesamten Repository beigetragen haben.
 
 -   Cypher-Query:
 
@@ -421,8 +421,9 @@ Beispielsweise ist es möglich, die Dateitypen und ihre jeweilige Zugehörigkeit
 ``` java
 MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
 WITH change.modificationKind AS ModificationKind, author.name AS Author, split(file.relativePath, '.')[1] AS FileType
-RETURN Author, count(ModificationKind), ModificationKind, FileType
-  ORDER BY ModificationKind, count(ModificationKind) DESC, Author
+  WHERE NOT(FileType CONTAINS '/')
+RETURN Author, FileType
+  ORDER BY Author, FileType
 ```
 
 -   R-Code:
@@ -655,8 +656,8 @@ data <- tm_map(data, removeWords, stopwords("english"))
 
 # # Display word cloud
 par(mfrow=c(1, 1), oma=c(0,0,2,0))
-wordcloud(data, scale=c(5,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
-title("Commit message by most used words", outer=TRUE)
+wordcloud(data, scale=c(10,0.5), max.words=100, min.freq=2, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, palette))
+title("Commit Message by most used Words", outer=TRUE)
 ```
 
 ![](Repository_Analysis_files/figure-markdown_github/commit-massage-by-most-used-words-1.png)
