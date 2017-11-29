@@ -1,4 +1,4 @@
-Git Repository Analysis
+Git Repository Analysis (Proof of Concept)
 ================
 
 -   [Introduction](#introduction)
