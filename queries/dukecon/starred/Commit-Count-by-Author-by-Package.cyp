@@ -1,4 +1,4 @@
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[CONTAINS]->(change:Change)-[:MODIFIES]->(file:File)
 WITH file, change, author.name AS Author,
      split(file.relativePath, '/')[0] + '/' AS Path
   WHERE NOT(Path CONTAINS '.')
@@ -6,7 +6,7 @@ RETURN Author, count(change) AS ChangeCount, Path
   ORDER BY Path, ChangeCount DESC
 
 UNION
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[CONTAINS]->(change:Change)-[:MODIFIES]->(file:File)
 WITH file, change, author.name AS Author,
      split(file.relativePath, '/')[0] + '/' +
      split(file.relativePath, '/')[1] + '/' AS Path
@@ -15,7 +15,7 @@ RETURN Author, count(change) AS ChangeCount, Path
   ORDER BY Path, ChangeCount DESC
 
 UNION
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[CONTAINS]->(change:Change)-[:MODIFIES]->(file:File)
 WITH file, change, author.name AS Author,
      split(file.relativePath, '/')[0] + '/' +
      split(file.relativePath, '/')[1] + '/' +
@@ -25,7 +25,7 @@ RETURN Author, count(change) AS ChangeCount, Path
   ORDER BY Path, ChangeCount DESC
 
 UNION
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[CONTAINS]->(change:Change)-[:MODIFIES]->(file:File)
 WITH file, change, author.name AS Author,
      split(file.relativePath, '/')[0] + '/' +
      split(file.relativePath, '/')[1] + '/' +
@@ -36,7 +36,7 @@ RETURN Author, count(change) AS ChangeCount, Path
   ORDER BY Path, ChangeCount DESC
 
 UNION
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[CONTAINS]->(change:Change)-[:MODIFIES]->(file:File)
 WITH file, change, author.name AS Author,
      split(file.relativePath, '/')[0] + '/' +
      split(file.relativePath, '/')[1] + '/' +
@@ -48,7 +48,7 @@ RETURN Author, count(change) AS ChangeCount, Path
   ORDER BY Path, ChangeCount DESC
 
 UNION
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[CONTAINS]->(change:Change)-[:MODIFIES]->(file:File)
 WITH file, change, author.name AS Author,
      split(file.relativePath, '/')[0] + '/' +
      split(file.relativePath, '/')[1] + '/' +
@@ -61,7 +61,7 @@ RETURN Author, count(change) AS ChangeCount, Path
   ORDER BY Path, ChangeCount DESC
 
 UNION
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[CONTAINS]->(change:Change)-[:MODIFIES]->(file:File)
 WITH file, change, author.name AS Author,
      split(file.relativePath, '/')[0] + '/' +
      split(file.relativePath, '/')[1] + '/' +
@@ -75,7 +75,7 @@ RETURN Author, count(change) AS ChangeCount, Path
   ORDER BY Path, ChangeCount DESC
 
 UNION
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[CONTAINS]->(change:Change)-[:MODIFIES]->(file:File)
 WITH file, change, author.name AS Author,
      split(file.relativePath, '/')[0] + '/' +
      split(file.relativePath, '/')[1] + '/' +
@@ -90,7 +90,7 @@ RETURN Author, count(change) AS ChangeCount, Path
   ORDER BY Path, ChangeCount DESC
 
 UNION
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[CONTAINS]->(change:Change)-[:MODIFIES]->(file:File)
 WITH file, change, author.name AS Author,
      split(file.relativePath, '/')[0] + '/' +
      split(file.relativePath, '/')[1] + '/' +
@@ -106,7 +106,7 @@ RETURN Author, count(change) AS ChangeCount, Path
   ORDER BY Path, ChangeCount DESC
 
 UNION
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[CONTAINS]->(change:Change)-[:MODIFIES]->(file:File)
 WITH file, change, author.name AS Author,
      split(file.relativePath, '/')[0] + '/' +
      split(file.relativePath, '/')[1] + '/' +
@@ -123,7 +123,7 @@ RETURN Author, count(change) AS ChangeCount, Path
   ORDER BY Path, ChangeCount DESC
 
 UNION
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[CONTAINS]->(change:Change)-[:MODIFIES]->(file:File)
 WITH file, change, author.name AS Author,
      split(file.relativePath, '/')[0] + '/' +
      split(file.relativePath, '/')[1] + '/' +
@@ -141,7 +141,7 @@ RETURN Author, count(change) AS ChangeCount, Path
   ORDER BY Path, ChangeCount DESC
 
 UNION
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[CONTAINS]->(change:Change)-[:MODIFIES]->(file:File)
 WITH file, change, author.name AS Author,
      split(file.relativePath, '/')[0] + '/' +
      split(file.relativePath, '/')[1] + '/' +

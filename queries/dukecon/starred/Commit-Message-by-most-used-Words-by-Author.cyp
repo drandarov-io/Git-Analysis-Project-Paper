@@ -1,4 +1,4 @@
-MATCH (author:Author)-[COMMITED]->(commit:Commit)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)
 WITH collect(commit) AS Commits, author.name AS Author
 RETURN
   Author,

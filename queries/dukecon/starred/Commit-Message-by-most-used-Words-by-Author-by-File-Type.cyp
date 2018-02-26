@@ -1,4 +1,4 @@
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[:CONTAINS_CHANGE]->(change:Change)-[:MODIFIES]->(file:File)
 WITH collect(commit) AS Commits, change, split(file.relativePath, '.')[1] AS FileType,
      author.name AS Author
 RETURN

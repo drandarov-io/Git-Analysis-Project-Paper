@@ -1,4 +1,4 @@
-MATCH (change:Change)-[MODIFIES]->(file:File)
+MATCH (change:Change)-[:MODIFIES]->(file:File)
 WITH split(file.relativePath, '.')[1] AS FileType, change
   WHERE FileType <> 'null'
 RETURN FileType, change.modificationKind AS ModificationKind,

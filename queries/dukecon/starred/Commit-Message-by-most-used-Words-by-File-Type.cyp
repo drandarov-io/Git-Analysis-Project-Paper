@@ -1,4 +1,4 @@
-MATCH (commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (commit:Commit)-[:CONTAINS_CHANGE]->(change:Change)-[:MODIFIES]->(file:File)
 WITH collect(commit) AS Commits, change, split(file.relativePath, '.')[1] AS FileType
 RETURN
   FileType,
