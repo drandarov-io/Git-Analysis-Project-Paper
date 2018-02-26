@@ -141,7 +141,7 @@ Zuerst verschaffen wir uns einen allgemeinen Überblick über das Repository. Da
 -   Cypher-Query:
 
 ``` java
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[:CONTAINS_CHANGE]->(change:Change)-[:MODIFIES]->(file:File)
 RETURN change.modificationKind AS ModificationKind, count(change.modificationKind) AS ChangeCount
   ORDER BY ChangeCount DESC
 ```
@@ -176,7 +176,7 @@ Damit die Visualisierung übersichtlich bleibt, werden nur die Autoren in dem Gr
 -   Cypher-Query:
 
 ``` java
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[:CONTAINS_CHANGE]->(change:Change)-[:MODIFIES]->(file:File)
 RETURN author.name AS Author, change.modificationKind AS ModificationKind
     ORDER BY ModificationKind, Author
 ```
@@ -216,7 +216,7 @@ Um aus den Änderungstypen mehr relevante Informationen für das Repository erha
 -   Cypher-Query
 
 ``` java
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[:CONTAINS_CHANGE]->(change:Change)-[:MODIFIES]->(file:File)
 RETURN split(commit.date,'-')[0]+'-'+split(commit.date,'-')[1] AS CommitDate, change.modificationKind AS ModificationKind, count(change) AS ChangeCount
   ORDER BY ModificationKind, CommitDate, ChangeCount DESC
 ```
@@ -268,7 +268,7 @@ Interessant ist die Betrachtung dieser zeitlichen Entwicklung verteilt auf die e
 -   Cypher-Query:
 
 ``` java
-MATCH  (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+MATCH  (author:Author)-[:COMMITTED]->(commit:Commit)-[:CONTAINS_CHANGE]->(change:Change)-[:MODIFIES]->(file:File)
 RETURN author.name AS Author, split(commit.date,'-')[0]+'-'+split(commit.date,'-')[1] AS CommitDate, change.modificationKind AS ModificationKind, count(change) AS ChangeCount
   ORDER BY CommitDate, ChangeCount DESC, ModificationKind
 ```
@@ -322,7 +322,7 @@ Neben der zeitlichen Betrachtung des Projektes gibt eine Übersicht der "beteili
 -   Cypher-Query:
 
 ``` java
-MATCH (change:Change)-[MODIFIES]->(file:File)
+MATCH (change:Change)-[:MODIFIES]->(file:File)
 WITH split(file.relativePath, '.')[1] AS FileType, change
   WHERE FileType <> 'null' AND NOT(FileType CONTAINS '/')
 RETURN FileType, count(change) AS ChangeCount
@@ -361,7 +361,7 @@ In diesem Kontext ist auch eine Übersicht der veränderten Dateitypen je Autor 
 -   Cypher-Query:
 
 ``` java
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[:CONTAINS_CHANGE]->(change:Change)-[:MODIFIES]->(file:File)
 WITH change.modificationKind AS ModificationKind, author.name AS Author, split(file.relativePath, '.')[1] AS FileType
   WHERE NOT(FileType CONTAINS '/')
 RETURN Author, FileType
@@ -419,7 +419,7 @@ Beispielsweise ist es möglich, die Dateitypen und ihre jeweilige Zugehörigkeit
 -   Cypher-Query:
 
 ``` java
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[:CONTAINS_CHANGE]->(change:Change)-[:MODIFIES]->(file:File)
 WITH change.modificationKind AS ModificationKind, author.name AS Author, split(file.relativePath, '.')[1] AS FileType
   WHERE NOT(FileType CONTAINS '/')
 RETURN Author, FileType
@@ -474,7 +474,7 @@ Das gleiche Prinzip lässt sich auch auf die Ordnerstrukturen im Projekt anwende
 -   Cypher-Query:
 
 ``` java
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[:CONTAINS]->(change:Change)-[:MODIFIES]->(file:File)
 WITH file, change, author.name AS Author,
      split(file.relativePath, '/')[0] + '/' AS Path
   WHERE NOT(Path CONTAINS '.')
@@ -482,7 +482,7 @@ RETURN Author, count(change) AS ChangeCount, Path
   ORDER BY Path, ChangeCount DESC
 
 UNION
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[:CONTAINS]->(change:Change)-[:MODIFIES]->(file:File)
 WITH file, change, author.name AS Author,
      split(file.relativePath, '/')[0] + '/' +
      split(file.relativePath, '/')[1] + '/' AS Path
@@ -543,7 +543,7 @@ Das Prinzip gilt auch für einzelne Dateien. Es gibt meistens in Projekten besti
 -   Cypher-Query:
 
 ``` java
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[:CONTAINS]->(change:Change)-[:MODIFIES]->(file:File)
 WITH file, change, author.name AS Author,
      split(file.relativePath, '/')[0] AS FilePath
   WHERE (FilePath CONTAINS '.')
@@ -551,7 +551,7 @@ RETURN Author, count(change) AS ChangeCount, FilePath
   ORDER BY FilePath, ChangeCount DESC
 
 UNION
-MATCH (author:Author)-[COMMITED]->(commit:Commit)-[CONTAINS]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)-[:CONTAINS]->(change:Change)-[:MODIFIES]->(file:File)
 WITH file, change, author.name AS Author,
      split(file.relativePath, '/')[0] + '/' +
      split(file.relativePath, '/')[1] AS FilePath
@@ -671,7 +671,7 @@ Wenn man sich die konkreten Dateitypen anguckt, lassen sich möglicherweise typi
 -   Cypher-Query:
 
 ``` cypher
-MATCH (commit:Commit)-[CONTAINS_CHANGE]->(change:Change)-[MODIFIES]->(file:File)
+MATCH (commit:Commit)-[:CONTAINS_CHANGE]->(change:Change)-[:MODIFIES]->(file:File)
 WITH collect(commit) AS Commits, change, split(file.relativePath, '.')[1] AS FileType
 RETURN
   FileType,
@@ -736,7 +736,7 @@ Da der Vergleich der Wordclouds für Dateitypen eher unbefriedigend war, verglei
 -   Cypher-Query:
 
 ``` cypher
-MATCH (author:Author)-[COMMITED]->(commit:Commit)
+MATCH (author:Author)-[:COMMITTED]->(commit:Commit)
 WITH collect(commit) AS Commits, author.name AS Author
 RETURN
   Author,
