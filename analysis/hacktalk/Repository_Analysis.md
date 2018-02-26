@@ -592,29 +592,13 @@ In der folgenden Grafik lassen sich die häufigen verwendeten Wörter innerhalb 
 ``` cypher
 MATCH (commit:Commit)
 WITH collect(commit) AS Commits
+WITH ["'",'. ']+split('",#()-+;?!…_','')+
+     [w IN split('OF THE BRANCH INTO AND FOR WITH PULL WE HAVE A MORE TO PRO ON AN IT SOME SIMPLE EASY FROM OUT IN IS OR THERE THEIR DER DIE DAS DES HABEN HAT WIRD WERDEN NUR FÜR UND IST VON MIT ES EINE GIBT KANN MUSS SOLL',' ') | ' ' + w + ' '] AS toRemove,
+     toUpper(reduce(words = '', aCommit IN Commits | words + aCommit.message)) AS allMessages
+WITH reduce(text = allMessages, garbage IN toRemove | replace(text,garbage,' ')) as cleaned
+WITH split(cleaned,' ') as words
 RETURN
-  collect(DISTINCT
-  split(
-
-  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
-  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
-  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
-  replace(
-
-  toUpper(
-  reduce(words = '', aCommit IN Commits | words + aCommit.message)
-  ),
-
-  '"', ' '), "'", ' '), '#', ' '), ',', ' '), '(', ' '), ')', ' '), '-', ' '), '+', ' '), '…', ' '), ';', ' '),
-  '. ', ' '), '?', ' '), '!', ' '),
-  ' OF ', ' '), ' THE ', ' '), ' BRANCH ', ' '), ' INTO ', ' '), ' AND ', ' '), ' FOR ', ' '), ' WITH ', ' '),
-  ' PULL ', ' '), ' WE ', ' '), ' HAVE ', ' '), ' A ', ' '), ' MORE ', ' '), ' TO ', ' '), ' PRO ', ' '), ' ON ', ' '),
-  ' AN ', ' '), ' IT ', ' '), ' SOME ', ' '), ' SIMPLE ', ' '), ' EASY ', ' '), ' FROM ', ' '), ' OUT ', ' '),
-  ' IN ', ' '), ' IS ', ' '), ' OR ', ' '), ' THERE ', ' '), ' THEIR ', ' '),
-  '   ', ' '), '  ', ' '), ' ', '_')
-
-  , '_')
-  ) AS Words
+  words
 ```
 
 -   R-Code:
@@ -647,30 +631,14 @@ Wenn man sich die konkreten Dateitypen anguckt, lassen sich möglicherweise typi
 ``` cypher
 MATCH (commit:Commit)-[:CONTAINS_CHANGE]->(change:Change)-[:MODIFIES]->(file:File)
 WITH collect(commit) AS Commits, change, split(file.relativePath, '.')[1] AS FileType
+WITH ["'",'. ']+split('",#()-+;?!…_','')+
+   [w IN split('OF THE BRANCH INTO AND FOR WITH PULL WE HAVE A MORE TO PRO ON AN IT SOME SIMPLE EASY FROM OUT IN IS OR THERE THEIR DER DIE DAS DES HABEN HAT WIRD WERDEN NUR FÜR UND IST VON MIT ES EINE GIBT KANN MUSS SOLL',' ') | ' ' + w + ' '] AS toRemove,
+   toUpper(reduce(words = '', aCommit IN Commits | words + aCommit.message)) AS allMessages, FileType
+WITH reduce(text = allMessages, garbage IN toRemove | replace(text,garbage,' ')) as cleaned, FileType
+WITH split(cleaned,' ') as words, FileType
 RETURN
-  FileType,
-  collect(DISTINCT
-  split(
-
-  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
-  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
-  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
-  replace(
-
-  toUpper(
-  reduce(words = '', aCommit IN Commits | words + aCommit.message)
-  ),
-
-  '"', ' '), "'", ' '), '#', ' '), ',', ' '), '(', ' '), ')', ' '), '-', ' '), '+', ' '), '…', ' '), ';', ' '),
-  '. ', ' '), '?', ' '), '!', ' '),
-  ' OF ', ' '), ' THE ', ' '), ' BRANCH ', ' '), ' INTO ', ' '), ' AND ', ' '), ' FOR ', ' '), ' WITH ', ' '),
-  ' PULL ', ' '), ' WE ', ' '), ' HAVE ', ' '), ' A ', ' '), ' MORE ', ' '), ' TO ', ' '), ' PRO ', ' '), ' ON ', ' '),
-  ' AN ', ' '), ' IT ', ' '), ' SOME ', ' '), ' SIMPLE ', ' '), ' EASY ', ' '), ' FROM ', ' '), ' OUT ', ' '),
-  ' IN ', ' '), ' IS ', ' '), ' OR ', ' '), ' THERE ', ' '), ' THEIR ', ' '),
-  '   ', ' '), '  ', ' '), ' ', '_')
-
-  , '_')
-  ) AS WordsByFileType
+FileType,
+words
 ```
 
 -   R-Code:
@@ -712,30 +680,14 @@ Da der Vergleich der Wordclouds für Dateitypen eher unbefriedigend war, verglei
 ``` cypher
 MATCH (author:Author)-[:COMMITTED]->(commit:Commit)
 WITH collect(commit) AS Commits, author.name AS Author
+WITH ["'",'. ']+split('",#()-+;?!…_','')+
+     [w IN split('OF THE BRANCH INTO AND FOR WITH PULL WE HAVE A MORE TO PRO ON AN IT SOME SIMPLE EASY FROM OUT IN IS OR THERE THEIR DER DIE DAS DES HABEN HAT WIRD WERDEN NUR FÜR UND IST VON MIT ES EINE GIBT KANN MUSS SOLL',' ') | ' ' + w + ' '] AS toRemove,
+     toUpper(reduce(words = '', aCommit IN Commits | words + aCommit.message)) AS allMessages, Author
+WITH reduce(text = allMessages, garbage IN toRemove | replace(text,garbage,' ')) as cleaned, Author
+WITH split(cleaned,' ') as words, Author
 RETURN
   Author,
-  collect(DISTINCT
-  split(
-
-  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
-  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
-  replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
-  replace(
-
-  toUpper(
-  reduce(words = '', aCommit IN Commits | words + aCommit.message)
-  ),
-
-  '"', ' '), "'", ' '), '#', ' '), ',', ' '), '(', ' '), ')', ' '), '-', ' '), '+', ' '), '…', ' '), ';', ' '),
-  '. ', ' '), '?', ' '), '!', ' '),
-  ' OF ', ' '), ' THE ', ' '), ' BRANCH ', ' '), ' INTO ', ' '), ' AND ', ' '), ' FOR ', ' '), ' WITH ', ' '),
-  ' PULL ', ' '), ' WE ', ' '), ' HAVE ', ' '), ' A ', ' '), ' MORE ', ' '), ' TO ', ' '), ' PRO ', ' '), ' ON ', ' '),
-  ' AN ', ' '), ' IT ', ' '), ' SOME ', ' '), ' SIMPLE ', ' '), ' EASY ', ' '), ' FROM ', ' '), ' OUT ', ' '),
-  ' IN ', ' '), ' IS ', ' '), ' OR ', ' '), ' THERE ', ' '), ' THEIR ', ' '),
-  '   ', ' '), '  ', ' '), ' ', '_')
-
-  , '_')
-  ) AS WordsByAuthor
+  words
 ```
 
 -   R-Code:
